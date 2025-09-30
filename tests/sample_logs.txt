@@ -1,0 +1,169 @@
+Started by user Sy Le
+
+[Pipeline] Start of Pipeline
+[Pipeline] node
+Running on Jenkins
+ in /var/jenkins_home/workspace/test-job
+[Pipeline] {
+[Pipeline] withEnv
+[Pipeline] {
+[Pipeline] stage
+[Pipeline] { (Preparation)
+[Pipeline] echo
+=== Stage: Preparation ===
+[Pipeline] sh
++ echo [INFO] Cleaning workspace...
+[INFO] Cleaning workspace...
++ echo INFO: Checking required tools
+INFO: Checking required tools
++ git --version
++ echo INFO: Git version git version 2.39.5
+INFO: Git version git version 2.39.5
++ echo [WARNING] Disk space only 2GB left
+[WARNING] Disk space only 2GB left
+[Pipeline] }
+[Pipeline] // stage
+[Pipeline] stage
+[Pipeline] { (Checkout)
+[Pipeline] echo
+=== Stage: Checkout ===
+[Pipeline] sh
++ echo [INFO] Cloning repository...
+[INFO] Cloning repository...
++ echo Cloning into 'ai-logguard'...
+Cloning into 'ai-logguard'...
++ echo INFO: Branch = main
+INFO: Branch = main
++ echo warning: CRLF will be replaced by LF in src/app.py
+warning: CRLF will be replaced by LF in src/app.py
+[Pipeline] }
+[Pipeline] // stage
+[Pipeline] stage
+[Pipeline] { (Install Dependencies)
+[Pipeline] echo
+=== Stage: Install Dependencies ===
+[Pipeline] sh
++ echo [INFO] Installing dependencies...
+[INFO] Installing dependencies...
++ echo npm WARN deprecated request@2.88.2: request has been deprecated
+npm WARN deprecated request@2.88.2: request has been deprecated
++ echo [WARNING] Vulnerability found in package lodash <4.17.21
+[WARNING] Vulnerability found in package lodash <4.17.21
++ echo INFO: 120 packages installed
+INFO: 120 packages installed
+[Pipeline] }
+[Pipeline] // stage
+[Pipeline] stage
+[Pipeline] { (Build)
+[Pipeline] echo
+=== Stage: Build ===
+[Pipeline] sh
++ echo [INFO] Starting build...
+[INFO] Starting build...
++ echo Compiling module A...
+Compiling module A...
++ echo Compiling module B...
+Compiling module B...
++ echo error: src/moduleC.cpp: undefined reference to function foo()
+error: src/moduleC.cpp: undefined reference to function foo()
++ echo [ERROR] Failed to compile moduleC
+[ERROR] Failed to compile moduleC
++ echo Build step failed with exit code 1
+Build step failed with exit code 1
++ echo INFO: Retrying build...
+INFO: Retrying build...
++ echo Build SUCCESS after retry
+Build SUCCESS after retry
+[Pipeline] }
+[Pipeline] // stage
+[Pipeline] stage
+[Pipeline] { (Unit Tests)
+[Pipeline] echo
+=== Stage: Unit Tests ===
+[Pipeline] sh
++ echo INFO: Running tests...
+INFO: Running tests...
++ echo TestCase1: passed
+TestCase1: passed
++ echo TestCase2: passed
+TestCase2: passed
++ echo TestCase3: FAILED - expected 200 got 500
+TestCase3: FAILED - expected 200 got 500
++ echo ERROR: Assertion failed in test_login
+ERROR: Assertion failed in test_login
++ echo warning: slow test detected (5s)
+warning: slow test detected (5s)
++ echo INFO: Total tests: 10, Failures: 2, Skipped: 1
+INFO: Total tests: 10, Failures: 2, Skipped: 1
+[Pipeline] }
+[Pipeline] // stage
+[Pipeline] stage
+[Pipeline] { (Integration Tests)
+[Pipeline] echo
+=== Stage: Integration Tests ===
+[Pipeline] sh
++ echo INFO: Starting integration tests...
+INFO: Starting integration tests...
++ echo [WARNING] Service X not available, using mock
+[WARNING] Service X not available, using mock
++ echo ERROR: Database connection refused at 10.0.0.5
+ERROR: Database connection refused at 10.0.0.5
++ echo INFO: Retrying connection...
+INFO: Retrying connection...
++ echo Connection established.
+Connection established.
++ echo IntegrationTest1: passed
+IntegrationTest1: passed
++ echo IntegrationTest2: passed
+IntegrationTest2: passed
+[Pipeline] }
+[Pipeline] // stage
+[Pipeline] stage
+[Pipeline] { (Packaging)
+[Pipeline] echo
+=== Stage: Packaging ===
+[Pipeline] sh
++ echo [INFO] Packaging application...
+[INFO] Packaging application...
++ echo Creating archive ai-logguard.tar.gz
+Creating archive ai-logguard.tar.gz
++ echo WARNING: Archive size 550MB exceeds limit (500MB)
+WARNING: Archive size 550MB exceeds limit (500MB)
++ echo INFO: Packaging done.
+INFO: Packaging done.
+[Pipeline] }
+[Pipeline] // stage
+[Pipeline] stage
+[Pipeline] { (Deployment)
+[Pipeline] echo
+=== Stage: Deployment ===
+[Pipeline] sh
++ echo INFO: Deploying to staging...
+INFO: Deploying to staging...
++ echo ERROR: Permission denied while copying to /opt/app
+ERROR: Permission denied while copying to /opt/app
++ echo FAILED: Deployment aborted
+FAILED: Deployment aborted
+[Pipeline] }
+[Pipeline] // stage
+[Pipeline] stage
+[Pipeline] { (Declarative: Post Actions)
+[Pipeline] echo
+=== Post-build Summary ===
+[Pipeline] sh
++ echo Scanning logs...
+Scanning logs...
++ echo [SUMMARY] Errors detected in Build, Unit Tests, Integration Tests, and Deployment
+[SUMMARY] Errors detected in Build, Unit Tests, Integration Tests, and Deployment
++ echo [SUMMARY] Warnings detected in Preparation, Install, Packaging
+[SUMMARY] Warnings detected in Preparation, Install, Packaging
++ echo [SUMMARY] Some stages succeeded, others failed
+[SUMMARY] Some stages succeeded, others failed
+[Pipeline] }
+[Pipeline] // stage
+[Pipeline] }
+[Pipeline] // withEnv
+[Pipeline] }
+[Pipeline] // node
+[Pipeline] End of Pipeline
+Finished: SUCCESS

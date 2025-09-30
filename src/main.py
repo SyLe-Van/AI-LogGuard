@@ -1,6 +1,8 @@
 import click
+
 from fetchers.jenkins_fetcher import JenkinsFetcher
 from fetchers.gitlab_fetcher import GitLabFetcher
+from parse import basic_parse
 
 @click.group()
 def cli():
@@ -31,11 +33,29 @@ def fetch(provider, url, job_id, token, username, build_number):
             click.echo("Warning: Logs too large, truncating to 10MB", err=True)
             logs = logs[:10_000_000]
         click.echo(f"Logs fetched successfully (first 500 chars):\n{logs[:500]}...")
-        click.echo("Summary: Parsing not implemented yet")
+        # Gọi parser
+        summary = basic_parse(logs, r'.*')
+        click.echo(f"Summary:\n{summary}")
     except Exception as e:
         click.echo(f"Error: {str(e)}", err=True)
+
+def test_basic_parse_with_sample_logs():
+    with open('tests/sample_logs.txt', 'r') as f:
+        logs_text = f.read()
+    from src.parse import basic_parse
+    print('Kết quả basic_parse:')
+    print(basic_parse(logs_text, r'.*'))
 
 cli.add_command(fetch)
 
 if __name__ == '__main__':
+    import sys
+    if len(sys.argv) == 1:
+        # Nếu không truyền command, test hàm basic_parse
+        with open('tests/sample_logs.txt', 'r') as f:
+            logs_text = f.read()
+        from parse import basic_parse
+        print('Kết quả basic_parse:')
+    print(basic_parse(logs_text))
+if __name__ == "__main__":
     cli()
