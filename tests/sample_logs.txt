@@ -5,164 +5,115 @@ Started by user Sy Le
 Running on Jenkins
  in /var/jenkins_home/workspace/test-job
 [Pipeline] {
-[Pipeline] withEnv
-[Pipeline] {
 [Pipeline] stage
-[Pipeline] { (Preparation)
-[Pipeline] echo
-=== Stage: Preparation ===
+[Pipeline] { (Simulate Build Logs)
 [Pipeline] sh
-+ echo [INFO] Cleaning workspace...
-[INFO] Cleaning workspace...
-+ echo INFO: Checking required tools
-INFO: Checking required tools
-+ git --version
-+ echo INFO: Git version git version 2.39.5
-INFO: Git version git version 2.39.5
-+ echo [WARNING] Disk space only 2GB left
-[WARNING] Disk space only 2GB left
-[Pipeline] }
-[Pipeline] // stage
-[Pipeline] stage
-[Pipeline] { (Checkout)
-[Pipeline] echo
-=== Stage: Checkout ===
-[Pipeline] sh
-+ echo [INFO] Cloning repository...
-[INFO] Cloning repository...
-+ echo Cloning into 'ai-logguard'...
-Cloning into 'ai-logguard'...
-+ echo INFO: Branch = main
-INFO: Branch = main
-+ echo warning: CRLF will be replaced by LF in src/app.py
-warning: CRLF will be replaced by LF in src/app.py
-[Pipeline] }
-[Pipeline] // stage
-[Pipeline] stage
-[Pipeline] { (Install Dependencies)
-[Pipeline] echo
-=== Stage: Install Dependencies ===
-[Pipeline] sh
-+ echo [INFO] Installing dependencies...
-[INFO] Installing dependencies...
-+ echo npm WARN deprecated request@2.88.2: request has been deprecated
-npm WARN deprecated request@2.88.2: request has been deprecated
-+ echo [WARNING] Vulnerability found in package lodash <4.17.21
-[WARNING] Vulnerability found in package lodash <4.17.21
-+ echo INFO: 120 packages installed
-INFO: 120 packages installed
-[Pipeline] }
-[Pipeline] // stage
-[Pipeline] stage
-[Pipeline] { (Build)
-[Pipeline] echo
-=== Stage: Build ===
-[Pipeline] sh
-+ echo [INFO] Starting build...
-[INFO] Starting build...
-+ echo Compiling module A...
-Compiling module A...
-+ echo Compiling module B...
-Compiling module B...
-+ echo error: src/moduleC.cpp: undefined reference to function foo()
-error: src/moduleC.cpp: undefined reference to function foo()
-+ echo [ERROR] Failed to compile moduleC
-[ERROR] Failed to compile moduleC
-+ echo Build step failed with exit code 1
-Build step failed with exit code 1
-+ echo INFO: Retrying build...
-INFO: Retrying build...
-+ echo Build SUCCESS after retry
-Build SUCCESS after retry
-[Pipeline] }
-[Pipeline] // stage
-[Pipeline] stage
-[Pipeline] { (Unit Tests)
-[Pipeline] echo
-=== Stage: Unit Tests ===
-[Pipeline] sh
-+ echo INFO: Running tests...
-INFO: Running tests...
-+ echo TestCase1: passed
-TestCase1: passed
-+ echo TestCase2: passed
-TestCase2: passed
-+ echo TestCase3: FAILED - expected 200 got 500
-TestCase3: FAILED - expected 200 got 500
-+ echo ERROR: Assertion failed in test_login
-ERROR: Assertion failed in test_login
-+ echo warning: slow test detected (5s)
-warning: slow test detected (5s)
-+ echo INFO: Total tests: 10, Failures: 2, Skipped: 1
-INFO: Total tests: 10, Failures: 2, Skipped: 1
-[Pipeline] }
-[Pipeline] // stage
-[Pipeline] stage
-[Pipeline] { (Integration Tests)
-[Pipeline] echo
-=== Stage: Integration Tests ===
-[Pipeline] sh
-+ echo INFO: Starting integration tests...
-INFO: Starting integration tests...
-+ echo [WARNING] Service X not available, using mock
-[WARNING] Service X not available, using mock
-+ echo ERROR: Database connection refused at 10.0.0.5
-ERROR: Database connection refused at 10.0.0.5
-+ echo INFO: Retrying connection...
-INFO: Retrying connection...
-+ echo Connection established.
-Connection established.
-+ echo IntegrationTest1: passed
-IntegrationTest1: passed
-+ echo IntegrationTest2: passed
-IntegrationTest2: passed
-[Pipeline] }
-[Pipeline] // stage
-[Pipeline] stage
-[Pipeline] { (Packaging)
-[Pipeline] echo
-=== Stage: Packaging ===
-[Pipeline] sh
++ echo ===== Jenkins Build Simulation Logs =====
+===== Jenkins Build Simulation Logs =====
++ echo [INFO] Initializing build environment...
+[INFO] Initializing build environment...
++ echo [INFO] Using Java 17 and Node.js 18
+[INFO] Using Java 17 and Node.js 18
++ echo Noise: -----------------------------
+Noise: -----------------------------
++ echo [WARNING] Disk space is low: only 2GB left
+[WARNING] Disk space is low: only 2GB left
++ echo [INFO] Pulling dependencies...
+[INFO] Pulling dependencies...
++ echo [ERROR] Failed to fetch dependency: lib-xyz
+[ERROR] Failed to fetch dependency: lib-xyz
++ echo Retrying...
+Retrying...
++ sleep 1
++ echo [INFO] Dependency resolved on retry
+[INFO] Dependency resolved on retry
++ echo [INFO] Starting compilation...
+[INFO] Starting compilation...
++ echo [WARNING] Deprecated API used in module payment
+[WARNING] Deprecated API used in module payment
++ echo [INFO] Compiling module: user
+[INFO] Compiling module: user
++ echo [INFO] Compiling module: order
+[INFO] Compiling module: order
++ echo [ERROR] Compilation failed in module: invoice
+[ERROR] Compilation failed in module: invoice
++ echo [INFO] Fixing imports and retrying...
+[INFO] Fixing imports and retrying...
++ echo [INFO] Compilation succeeded
+[INFO] Compilation succeeded
++ echo [INFO] Running unit tests...
+[INFO] Running unit tests...
++ echo test_user_login .................. ok
+test_user_login .................. ok
++ echo test_user_register ............... ok
+test_user_register ............... ok
++ echo test_order_checkout .............. [FAILED]
+test_order_checkout .............. [FAILED]
++ echo [ERROR] Unit test failed: test_order_checkout
+[ERROR] Unit test failed: test_order_checkout
++ echo [WARNING] Test marked as flaky: test_payment_gateway
+[WARNING] Test marked as flaky: test_payment_gateway
++ echo [INFO] Unit tests completed with 2 failures
+[INFO] Unit tests completed with 2 failures
++ echo [INFO] Running integration tests...
+[INFO] Running integration tests...
++ echo [INFO] Starting Docker container for DB
+[INFO] Starting Docker container for DB
++ echo [ERROR] DB connection timeout on first try
+[ERROR] DB connection timeout on first try
++ echo Retrying in 5s...
+Retrying in 5s...
++ sleep 1
++ echo [INFO] Connected to DB successfully
+[INFO] Connected to DB successfully
++ echo [INFO] Running API tests...
+[INFO] Running API tests...
++ echo [WARNING] Slow response detected: /api/report
+[WARNING] Slow response detected: /api/report
++ echo [INFO] Integration tests passed
+[INFO] Integration tests passed
 + echo [INFO] Packaging application...
 [INFO] Packaging application...
-+ echo Creating archive ai-logguard.tar.gz
-Creating archive ai-logguard.tar.gz
-+ echo WARNING: Archive size 550MB exceeds limit (500MB)
-WARNING: Archive size 550MB exceeds limit (500MB)
-+ echo INFO: Packaging done.
-INFO: Packaging done.
++ echo tar: creating archive build-1.0.0.tar.gz
+tar: creating archive build-1.0.0.tar.gz
++ echo [INFO] Package created successfully
+[INFO] Package created successfully
++ echo [WARNING] Large package size: 512MB
+[WARNING] Large package size: 512MB
++ echo [INFO] Deploying to staging...
+[INFO] Deploying to staging...
++ echo [ERROR] Deployment failed due to timeout
+[ERROR] Deployment failed due to timeout
++ echo Retrying deployment...
+Retrying deployment...
++ echo [INFO] Deployment succeeded on retry
+[INFO] Deployment succeeded on retry
++ echo [WARNING] Health check unstable, retrying probe
+[WARNING] Health check unstable, retrying probe
++ echo [INFO] Service available at http://staging.example.com
+[INFO] Service available at http://staging.example.com
++ echo --------------------------------------------------
+--------------------------------------------------
++ echo [INFO] Build Summary:
+[INFO] Build Summary:
++ echo   Compilation: SUCCESS
+  Compilation: SUCCESS
++ echo   Unit Tests : 2 FAILED, 98 PASSED
+  Unit Tests : 2 FAILED, 98 PASSED
++ echo   Integration: PASSED
+  Integration: PASSED
++ echo   Packaging  : SUCCESS
+  Packaging  : SUCCESS
++ echo   Deployment : SUCCESS (with retry)
+  Deployment : SUCCESS (with retry)
++ echo [WARNING] Some tests marked as flaky
+[WARNING] Some tests marked as flaky
++ echo [ERROR] 2 critical errors found
+[ERROR] 2 critical errors found
++ echo [INFO] Jenkins job finished with status: UNSTABLE
+[INFO] Jenkins job finished with status: UNSTABLE
 [Pipeline] }
 [Pipeline] // stage
-[Pipeline] stage
-[Pipeline] { (Deployment)
-[Pipeline] echo
-=== Stage: Deployment ===
-[Pipeline] sh
-+ echo INFO: Deploying to staging...
-INFO: Deploying to staging...
-+ echo ERROR: Permission denied while copying to /opt/app
-ERROR: Permission denied while copying to /opt/app
-+ echo FAILED: Deployment aborted
-FAILED: Deployment aborted
-[Pipeline] }
-[Pipeline] // stage
-[Pipeline] stage
-[Pipeline] { (Declarative: Post Actions)
-[Pipeline] echo
-=== Post-build Summary ===
-[Pipeline] sh
-+ echo Scanning logs...
-Scanning logs...
-+ echo [SUMMARY] Errors detected in Build, Unit Tests, Integration Tests, and Deployment
-[SUMMARY] Errors detected in Build, Unit Tests, Integration Tests, and Deployment
-+ echo [SUMMARY] Warnings detected in Preparation, Install, Packaging
-[SUMMARY] Warnings detected in Preparation, Install, Packaging
-+ echo [SUMMARY] Some stages succeeded, others failed
-[SUMMARY] Some stages succeeded, others failed
-[Pipeline] }
-[Pipeline] // stage
-[Pipeline] }
-[Pipeline] // withEnv
 [Pipeline] }
 [Pipeline] // node
 [Pipeline] End of Pipeline
