@@ -1,0 +1,14 @@
+# Development dependencies
+-r requirements.txt
+
+# Testing
+pytest-mock==3.14.0
+pytest-asyncio==0.23.6
+
+# Code quality
+pre-commit==3.7.0
+isort==5.13.2
+pylint==3.1.0
+
+# Type checking
+types-requests==2.31.0
