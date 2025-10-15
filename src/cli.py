@@ -51,11 +51,17 @@ def analyze(
         "--full",
         help="Show full analysis including all errors and warnings",
     ),
+    ai: bool = typer.Option(
+        False,
+        "--ai",
+        help="Enable AI-powered error explanation and fix suggestions (requires OpenAI API key)",
+    ),
 ):
     """
     🔍 Analyze a CI/CD log file
     
     Parse and analyze logs from Jenkins, GitHub Actions, GitLab CI, etc.
+    Use --ai flag to get AI-powered explanations and fix suggestions.
     """
     console.print(f"\n[bold blue]🔍 Analyzing log file:[/bold blue] {log_file}\n")
     
@@ -102,6 +108,10 @@ def analyze(
     else:  # rich (default)
         display_parsed_log(parsed, console=console, show_full=show_full)
     
+    # AI-powered analysis (if enabled)
+    if ai and parsed.errors:
+        _display_ai_analysis(parsed, console)
+    
     console.print()
 
 
@@ -115,11 +125,17 @@ def summarize(
         dir_okay=False,
         readable=True,
     ),
+    ai: bool = typer.Option(
+        False,
+        "--ai",
+        help="Use AI to generate intelligent summary (requires OpenAI API key)",
+    ),
 ):
     """
     📊 Generate a quick summary of a log file
     
     Show high-level statistics and key information.
+    Use --ai flag for intelligent AI-powered summary.
     """
     console.print(f"\n[bold blue]📊 Summarizing log file:[/bold blue] {log_file}\n")
     
@@ -131,8 +147,13 @@ def summarize(
         console.print(f"[red]❌ Error: {e}[/red]")
         raise typer.Exit(code=1)
     
-    # Display summary
+    # Display basic summary
     display_summary(parsed, console=console)
+    
+    # AI-powered summary (if enabled)
+    if ai:
+        _display_ai_summary(parsed, console)
+    
     console.print()
 
 
@@ -254,6 +275,105 @@ def _display_markdown(parsed: ParsedLog):
     
     md_text = "\n".join(md_lines)
     console.print(Markdown(md_text))
+
+
+def _display_ai_summary(parsed: ParsedLog, console: Console):
+    """Display AI-powered summary"""
+    from .llm import summarize_log
+    
+    console.print("\n[bold cyan]🤖 AI-Powered Summary[/bold cyan]")
+    console.print("[dim]Generating intelligent summary...[/dim]\n")
+    
+    with Progress(
+        SpinnerColumn(),
+        TextColumn("[progress.description]{task.description}"),
+        console=console,
+    ) as progress:
+        task = progress.add_task("Analyzing with AI...", total=None)
+        
+        try:
+            result = summarize_log(parsed, model="gpt-3.5-turbo")
+            progress.update(task, description="✅ AI analysis complete")
+        except Exception as e:
+            console.print(f"[red]❌ AI analysis failed: {e}[/red]")
+            console.print("[dim]Tip: Make sure you have set OPENAI_API_KEY in .env file[/dim]")
+            return
+    
+    console.print()
+    console.print(Panel(
+        Markdown(result["summary"]),
+        title="🤖 AI Summary",
+        border_style="cyan"
+    ))
+    
+    # Show usage statistics
+    console.print(f"[dim]Tokens used: {result['tokens_used']} | "
+                 f"Model: {result['model']} | "
+                 f"Strategy: {result['strategy']}[/dim]\n")
+
+
+def _display_ai_analysis(parsed: ParsedLog, console: Console):
+    """Display AI-powered error analysis and fix suggestions"""
+    from .llm import explain_error, suggest_fix
+    
+    console.print("\n[bold cyan]🤖 AI-Powered Error Analysis[/bold cyan]\n")
+    
+    # Limit to top 3 errors
+    top_errors = parsed.errors[:3]
+    
+    for i, error in enumerate(top_errors, 1):
+        console.print(f"[bold yellow]Error {i}/{len(top_errors)}[/bold yellow] (Line {error.line_number})")
+        console.print(f"[red]{error.message}[/red]\n")
+        
+        with Progress(
+            SpinnerColumn(),
+            TextColumn("[progress.description]{task.description}"),
+            console=console,
+        ) as progress:
+            # Explain error
+            task = progress.add_task(f"Analyzing error {i}...", total=None)
+            
+            try:
+                explanation = explain_error(error, parsed)
+                progress.update(task, description=f"✅ Error {i} explained")
+            except Exception as e:
+                console.print(f"[red]❌ Failed to explain error: {e}[/red]")
+                continue
+        
+        console.print(Panel(
+            Markdown(explanation["explanation"]),
+            title=f"💡 Explanation - {explanation['error_category']}",
+            border_style="blue"
+        ))
+        console.print()
+        
+        # Suggest fix
+        with Progress(
+            SpinnerColumn(),
+            TextColumn("[progress.description]{task.description}"),
+            console=console,
+        ) as progress:
+            task = progress.add_task(f"Generating fix for error {i}...", total=None)
+            
+            try:
+                fix_suggestion = suggest_fix(error, parsed)
+                progress.update(task, description=f"✅ Fix generated for error {i}")
+            except Exception as e:
+                console.print(f"[red]❌ Failed to generate fix: {e}[/red]")
+                continue
+        
+        console.print(Panel(
+            Markdown(fix_suggestion["fix_suggestions"]),
+            title="🔧 Fix Suggestions",
+            border_style="green"
+        ))
+        
+        console.print(f"[dim]Tokens used: {explanation['tokens_used'] + fix_suggestion['tokens_used']}[/dim]\n")
+        
+        if i < len(top_errors):
+            console.print("[dim]" + "─" * 80 + "[/dim]\n")
+    
+    console.print("[dim]💡 Tip: Use --full flag to see all errors (showing top 3)[/dim]")
 
 
 def main():
