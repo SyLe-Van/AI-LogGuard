@@ -96,7 +96,7 @@ def analyze(
     
     # Output based on format
     if output_format == "json":
-        console.print(json.dumps(parsed.dict(), indent=2, default=str))
+        console.print(json.dumps(parsed.model_dump(), indent=2, default=str))
     elif output_format == "markdown":
         _display_markdown(parsed)
     else:  # rich (default)

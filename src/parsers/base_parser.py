@@ -84,6 +84,14 @@ class BaseParser(ABC):
     
     def is_error_line(self, line: str) -> bool:
         """Check if a line contains an error"""
+        # Skip git commands (they contain timeout in comments)
+        if re.search(r'>\s*git\s+.*#\s*timeout=', line):
+            return False
+        
+        # Skip Jenkins pipeline syntax lines
+        if re.search(r'^\s*>\s+git\s+', line):
+            return False
+            
         error_patterns = [
             r'\[ERROR\]',
             r'\bERROR\b',
@@ -92,7 +100,7 @@ class BaseParser(ABC):
             r'compilation failed',
             r'test.*failed',
             r'dependency.*error',
-            r'timeout',
+            r'\btimeout\s+(error|exceeded)',  # Only real timeout errors
             r'exception',
         ]
         return any(re.search(pattern, line, re.IGNORECASE) for pattern in error_patterns)

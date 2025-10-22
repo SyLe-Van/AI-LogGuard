@@ -45,6 +45,9 @@ def display_parsed_log(
     # Warnings
     if parsed.warnings:
         _display_warnings(parsed.warnings, console, show_all=show_full)
+    
+    # Final verdict
+    _display_verdict(parsed, console)
 
 
 def display_summary(parsed: ParsedLog, console: Optional[Console] = None):
@@ -59,6 +62,11 @@ def display_summary(parsed: ParsedLog, console: Optional[Console] = None):
         console = Console()
     
     summary = parsed.get_summary()
+    
+    # Determine actual status based on errors
+    actual_status = summary['status']
+    if summary['errors'] > 0 and actual_status == BuildStatus.SUCCESS:
+        actual_status = BuildStatus.UNSTABLE
     
     # Create summary table
     table = Table(title="📊 Log Summary", show_header=False, box=None)
@@ -77,7 +85,7 @@ def display_summary(parsed: ParsedLog, console: Optional[Console] = None):
     table.add_row("Build Number", summary['build_number'] or "N/A")
     
     # Status with color
-    status_text = _get_status_text(summary['status'])
+    status_text = _get_status_text(actual_status)
     table.add_row("Status", status_text)
     
     if summary['duration']:
@@ -87,8 +95,8 @@ def display_summary(parsed: ParsedLog, console: Optional[Console] = None):
     table.add_row("Stages", str(summary['stages']))
     
     # Error/Warning counts with color
-    error_text = f"[red]{summary['errors']}[/red]" if summary['errors'] > 0 else f"[green]{summary['errors']}[/green]"
-    warning_text = f"[yellow]{summary['warnings']}[/yellow]" if summary['warnings'] > 0 else f"[green]{summary['warnings']}[/green]"
+    error_text = f"[red bold]{summary['errors']}[/red bold]" if summary['errors'] > 0 else f"[green]{summary['errors']}[/green]"
+    warning_text = f"[yellow bold]{summary['warnings']}[/yellow bold]" if summary['warnings'] > 0 else f"[green]{summary['warnings']}[/green]"
     
     table.add_row("Errors", error_text)
     table.add_row("Warnings", warning_text)
@@ -101,14 +109,19 @@ def display_summary(parsed: ParsedLog, console: Optional[Console] = None):
 
 def _display_header(parsed: ParsedLog, console: Console):
     """Display header with job information"""
-    status_text = _get_status_text(parsed.status)
+    # Determine actual build status based on errors/warnings
+    actual_status = parsed.status
+    if parsed.error_count > 0 and parsed.status == BuildStatus.SUCCESS:
+        actual_status = BuildStatus.UNSTABLE
+    
+    status_text = _get_status_text(actual_status)
     platform_icon = {
         "jenkins": "🔧",
         "github-actions": "🐙",
         "gitlab-ci": "🦊",
-    }.get(parsed.platform, "❓")
+    }.get(str(parsed.platform).lower(), "❓")
     
-    title = f"{platform_icon} {parsed.platform.upper()} - {parsed.job_name or 'Unknown Job'}"
+    title = f"{platform_icon} {str(parsed.platform).upper()} - {parsed.job_name or 'Unknown Job'}"
     
     info_lines = [
         f"Build: {parsed.build_number or 'N/A'}",
@@ -160,14 +173,22 @@ def _display_stages(stages: list, console: Console):
     tree = Tree("🎯 Stages/Steps")
     
     for stage in stages:
-        status_icon = {
-            BuildStatus.SUCCESS: "✅",
-            BuildStatus.FAILED: "❌",
-            BuildStatus.UNSTABLE: "⚠️",
-            BuildStatus.UNKNOWN: "❓",
-        }.get(stage.status, "❓")
+        # Get status value properly - handle both string and enum
+        if hasattr(stage.status, 'value'):
+            stage_status = stage.status.value
+        elif isinstance(stage.status, str):
+            stage_status = stage.status
+        else:
+            stage_status = str(stage.status).split('.')[-1]  # Extract enum name
         
-        stage_label = f"{status_icon} {stage.name} - {stage.status}"
+        status_icon = {
+            "SUCCESS": "✅",
+            "FAILED": "❌",
+            "UNSTABLE": "⚠️",
+            "UNKNOWN": "❓",
+        }.get(stage_status.upper() if isinstance(stage_status, str) else stage_status, "❓")
+        
+        stage_label = f"{status_icon} {stage.name} - [bold]{stage_status}[/bold]"
         
         # Add details if there are errors/warnings
         details = []
@@ -194,16 +215,25 @@ def _display_errors(errors: list, console: Console, show_all: bool = False):
     title = f"❌ Errors (showing {display_count} of {len(errors)})"
     table = Table(title=title, show_header=True)
     
-    table.add_column("Line", style="dim", width=6)
-    table.add_column("Level", width=10)
-    table.add_column("Message", style="red")
+    table.add_column("Line", style="dim", width=8, justify="right")
+    table.add_column("Level", width=12)
+    table.add_column("Message", style="red", no_wrap=False)
     
     for error in errors[:display_count]:
-        level_style = "red bold" if error.level == LogLevel.CRITICAL else "red"
+        # Get level value properly - handle both string and enum
+        if hasattr(error.level, 'value'):
+            level_value = error.level.value
+        elif isinstance(error.level, str):
+            level_value = error.level
+        else:
+            level_value = str(error.level).split('.')[-1]  # Extract enum name
+        
+        level_style = "red bold" if level_value == "CRITICAL" else "red"
+        
         table.add_row(
             str(error.line_number),
-            f"[{level_style}]{error.level}[/{level_style}]",
-            error.message[:100]  # Truncate long messages
+            f"[{level_style}]{level_value}[/{level_style}]",
+            error.message[:120]  # Truncate very long messages
         )
     
     console.print(table)
@@ -242,3 +272,45 @@ def _get_status_text(status: str) -> str:
     }
     
     return status_map.get(status, str(status))
+
+
+def _display_verdict(parsed: ParsedLog, console: Console):
+    """Display final verdict/recommendation"""
+    # Determine severity
+    has_errors = parsed.error_count > 0
+    has_warnings = parsed.warning_count > 0
+    
+    if not has_errors and not has_warnings:
+        verdict = Panel(
+            "[green bold]✅ Build completed successfully![/green bold]\n"
+            "[green]No errors or warnings detected. Safe to deploy.[/green]",
+            title="📋 Final Verdict",
+            border_style="green",
+        )
+    elif has_errors:
+        verdict_text = f"[red bold]❌ Build has {parsed.error_count} error(s)[/red bold]"
+        if has_warnings:
+            verdict_text += f" [yellow]and {parsed.warning_count} warning(s)[/yellow]"
+        verdict_text += "\n[red]Action required before deployment.[/red]"
+        
+        # Add failed stages info
+        if parsed.stages:
+            failed_stages = [s for s in parsed.stages if str(s.status) == "FAILED" or (hasattr(s.status, 'value') and s.status.value == "FAILED")]
+            if failed_stages:
+                verdict_text += f"\n[dim]Failed stages: {', '.join(s.name for s in failed_stages)}[/dim]"
+        
+        verdict = Panel(
+            verdict_text,
+            title="📋 Final Verdict",
+            border_style="red",
+        )
+    else:  # Only warnings
+        verdict = Panel(
+            f"[yellow bold]⚠️ Build completed with {parsed.warning_count} warning(s)[/yellow bold]\n"
+            "[yellow]Review warnings before production deployment.[/yellow]",
+            title="📋 Final Verdict",
+            border_style="yellow",
+        )
+    
+    console.print(verdict)
+
