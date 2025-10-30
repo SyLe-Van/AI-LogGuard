@@ -25,7 +25,7 @@ keywords = ["ci-cd", "devops", "log-analysis", "ai", "ml", "llm"]
 dependencies = [
     "typer>=0.15.0",
     "rich==13.7.1",
-    "requests==2.31.0",
+    "requests==2.32.4",
     "pydantic>=2.10.0",
     "python-dotenv==1.0.1",
 ]
