@@ -1,120 +1,351 @@
-Started by user Sy Le
-
+Started by user unknown or anonymous
+Obtained Jenkinsfile from git https://github.com/SyLe-Van/Vucar---Inspection-Car-App
 [Pipeline] Start of Pipeline
 [Pipeline] node
-Running on Jenkins
- in /var/jenkins_home/workspace/test-job
+Running on Jenkins in /var/lib/jenkins/workspace/vucar-pipeline
 [Pipeline] {
 [Pipeline] stage
-[Pipeline] { (Simulate Build Logs)
+[Pipeline] { (Declarative: Checkout SCM)
+[Pipeline] checkout
+Selected Git installation does not exist. Using Default
+The recommended git tool is: NONE
+using credential github-credentials
+Cloning the remote Git repository
+Cloning repository https://github.com/SyLe-Van/Vucar---Inspection-Car-App
+ > git init /var/lib/jenkins/workspace/vucar-pipeline # timeout=10
+Fetching upstream changes from https://github.com/SyLe-Van/Vucar---Inspection-Car-App
+ > git --version # timeout=10
+ > git --version # 'git version 2.50.1'
+using GIT_ASKPASS to set credentials GitHub Personal Access Token
+ > git fetch --tags --force --progress -- https://github.com/SyLe-Van/Vucar---Inspection-Car-App +refs/heads/*:refs/remotes/origin/* # timeout=10
+ > git config remote.origin.url https://github.com/SyLe-Van/Vucar---Inspection-Car-App # timeout=10
+ > git config --add remote.origin.fetch +refs/heads/*:refs/remotes/origin/* # timeout=10
+Avoid second fetch
+ > git rev-parse refs/remotes/origin/main^{commit} # timeout=10
+Checking out Revision e90a9e822f357e2e464800ff5b307f6f7b31b4dc (refs/remotes/origin/main)
+ > git config core.sparsecheckout # timeout=10
+ > git checkout -f e90a9e822f357e2e464800ff5b307f6f7b31b4dc # timeout=10
+Commit message: "Fix MongoDB connection issue by changing environment variable from MONGODB_URL to MONGODB_URI"
+ > git rev-list --no-walk e90a9e822f357e2e464800ff5b307f6f7b31b4dc # timeout=10
+[Pipeline] }
+[Pipeline] // stage
+[Pipeline] withEnv
+[Pipeline] {
+[Pipeline] withEnv
+[Pipeline] {
+[Pipeline] timeout
+Timeout set to expire in 30 min
+[Pipeline] {
+[Pipeline] timestamps
+[Pipeline] {
+[Pipeline] stage
+[Pipeline] { (Declarative: Tool Install)
+[Pipeline] tool
+[Pipeline] envVarsForTool
+[Pipeline] }
+[Pipeline] // stage
+[Pipeline] withEnv
+[Pipeline] {
+[Pipeline] stage
+[Pipeline] { (🔍 Branch Check)
+[Pipeline] tool
+[Pipeline] envVarsForTool
+[Pipeline] withEnv
+[Pipeline] {
+[Pipeline] script
+[Pipeline] {
+[Pipeline] echo
+[2025-10-14T19:19:09.936Z] Current branch: origin/main
+[Pipeline] echo
+[2025-10-14T19:19:09.952Z] ✅ Main branch detected - continuing pipeline
+[Pipeline] }
+[Pipeline] // script
+[Pipeline] }
+[Pipeline] // withEnv
+[Pipeline] }
+[Pipeline] // stage
+[Pipeline] stage
+[Pipeline] { (🔍 Initialize)
+[Pipeline] tool
+[Pipeline] envVarsForTool
+[Pipeline] withEnv
+[Pipeline] {
+[Pipeline] script
+[Pipeline] {
+[Pipeline] echo
+[2025-10-14T19:19:10.265Z] 🌿 Detected branch: main
+[Pipeline] echo
+[2025-10-14T19:19:10.287Z] 🚀 PRODUCTION Pipeline
+[Pipeline] echo
+[2025-10-14T19:19:10.300Z] 📁 Environment: .env.production
+[Pipeline] echo
+[2025-10-14T19:19:10.314Z] 🐳 Docker tag: syle712/vucar-app:v1.0.60
+[Pipeline] echo
+[2025-10-14T19:19:10.326Z] 🎯 Mode: Full CI/CD with Deploy Option
+[Pipeline] echo
+[2025-10-14T19:19:10.340Z] 📦 Deploy to Production: true
+[Pipeline] }
+[Pipeline] // script
+[Pipeline] }
+[Pipeline] // withEnv
+[Pipeline] }
+[Pipeline] // stage
+[Pipeline] stage
+[Pipeline] { (📦 Checkout)
+[Pipeline] tool
+[Pipeline] envVarsForTool
+[Pipeline] withEnv
+[Pipeline] {
+[Pipeline] echo
+[2025-10-14T19:19:10.653Z] 📥 Checking out source code
+[Pipeline] checkout
+[2025-10-14T19:19:10.672Z] Selected Git installation does not exist. Using Default
+[2025-10-14T19:19:10.672Z] The recommended git tool is: NONE
+[2025-10-14T19:19:10.672Z] using credential github-credentials
+[2025-10-14T19:19:10.677Z]  > git rev-parse --resolve-git-dir /var/lib/jenkins/workspace/vucar-pipeline/.git # timeout=10
+[2025-10-14T19:19:10.683Z] Fetching changes from the remote Git repository
+[2025-10-14T19:19:10.685Z]  > git config remote.origin.url https://github.com/SyLe-Van/Vucar---Inspection-Car-App # timeout=10
+[2025-10-14T19:19:10.704Z] Fetching upstream changes from https://github.com/SyLe-Van/Vucar---Inspection-Car-App
+[2025-10-14T19:19:10.704Z]  > git --version # timeout=10
+[2025-10-14T19:19:10.713Z]  > git --version # 'git version 2.50.1'
+[2025-10-14T19:19:10.713Z] using GIT_ASKPASS to set credentials GitHub Personal Access Token
+[2025-10-14T19:19:10.720Z]  > git fetch --tags --force --progress -- https://github.com/SyLe-Van/Vucar---Inspection-Car-App +refs/heads/*:refs/remotes/origin/* # timeout=10
+[2025-10-14T19:19:11.272Z]  > git rev-parse refs/remotes/origin/main^{commit} # timeout=10
+[2025-10-14T19:19:11.279Z] Checking out Revision e90a9e822f357e2e464800ff5b307f6f7b31b4dc (refs/remotes/origin/main)
+[2025-10-14T19:19:11.279Z]  > git config core.sparsecheckout # timeout=10
+[2025-10-14T19:19:11.283Z]  > git checkout -f e90a9e822f357e2e464800ff5b307f6f7b31b4dc # timeout=10
+[2025-10-14T19:19:11.299Z] Commit message: "Fix MongoDB connection issue by changing environment variable from MONGODB_URL to MONGODB_URI"
+[Pipeline] }
+[Pipeline] // withEnv
+[Pipeline] }
+[Pipeline] // stage
+[Pipeline] stage
+[Pipeline] { (🔍 Install Dependencies)
+[Pipeline] tool
+[Pipeline] envVarsForTool
+[Pipeline] withEnv
+[Pipeline] {
+[Pipeline] echo
+[2025-10-14T19:19:11.564Z] 📦 Installing Node.js dependencies
 [Pipeline] sh
-+ echo ===== Jenkins Build Simulation Logs =====
-===== Jenkins Build Simulation Logs =====
-+ echo [INFO] Initializing build environment...
-[INFO] Initializing build environment...
-+ echo [INFO] Using Java 17 and Node.js 18
-[INFO] Using Java 17 and Node.js 18
-+ echo Noise: -----------------------------
-Noise: -----------------------------
-+ echo [WARNING] Disk space is low: only 2GB left
-[WARNING] Disk space is low: only 2GB left
-+ echo [INFO] Pulling dependencies...
-[INFO] Pulling dependencies...
-+ echo [ERROR] Failed to fetch dependency: lib-xyz
-[ERROR] Failed to fetch dependency: lib-xyz
-+ echo Retrying...
-Retrying...
-+ sleep 1
-+ echo [INFO] Dependency resolved on retry
-[INFO] Dependency resolved on retry
-+ echo [INFO] Starting compilation...
-[INFO] Starting compilation...
-+ echo [WARNING] Deprecated API used in module payment
-[WARNING] Deprecated API used in module payment
-+ echo [INFO] Compiling module: user
-[INFO] Compiling module: user
-+ echo [INFO] Compiling module: order
-[INFO] Compiling module: order
-+ echo [ERROR] Compilation failed in module: invoice
-[ERROR] Compilation failed in module: invoice
-+ echo [INFO] Fixing imports and retrying...
-[INFO] Fixing imports and retrying...
-+ echo [INFO] Compilation succeeded
-[INFO] Compilation succeeded
-+ echo [INFO] Running unit tests...
-[INFO] Running unit tests...
-+ echo test_user_login .................. ok
-test_user_login .................. ok
-+ echo test_user_register ............... ok
-test_user_register ............... ok
-+ echo test_order_checkout .............. [FAILED]
-test_order_checkout .............. [FAILED]
-+ echo [ERROR] Unit test failed: test_order_checkout
-[ERROR] Unit test failed: test_order_checkout
-+ echo [WARNING] Test marked as flaky: test_payment_gateway
-[WARNING] Test marked as flaky: test_payment_gateway
-+ echo [INFO] Unit tests completed with 2 failures
-[INFO] Unit tests completed with 2 failures
-+ echo [INFO] Running integration tests...
-[INFO] Running integration tests...
-+ echo [INFO] Starting Docker container for DB
-[INFO] Starting Docker container for DB
-+ echo [ERROR] DB connection timeout on first try
-[ERROR] DB connection timeout on first try
-+ echo Retrying in 5s...
-Retrying in 5s...
-+ sleep 1
-+ echo [INFO] Connected to DB successfully
-[INFO] Connected to DB successfully
-+ echo [INFO] Running API tests...
-[INFO] Running API tests...
-+ echo [WARNING] Slow response detected: /api/report
-[WARNING] Slow response detected: /api/report
-+ echo [INFO] Integration tests passed
-[INFO] Integration tests passed
-+ echo [INFO] Packaging application...
-[INFO] Packaging application...
-+ echo tar: creating archive build-1.0.0.tar.gz
-tar: creating archive build-1.0.0.tar.gz
-+ echo [INFO] Package created successfully
-[INFO] Package created successfully
-+ echo [WARNING] Large package size: 512MB
-[WARNING] Large package size: 512MB
-+ echo [INFO] Deploying to staging...
-[INFO] Deploying to staging...
-+ echo [ERROR] Deployment failed due to timeout
-[ERROR] Deployment failed due to timeout
-+ echo Retrying deployment...
-Retrying deployment...
-+ echo [INFO] Deployment succeeded on retry
-[INFO] Deployment succeeded on retry
-+ echo [WARNING] Health check unstable, retrying probe
-[WARNING] Health check unstable, retrying probe
-+ echo [INFO] Service available at http://staging.example.com
-[INFO] Service available at http://staging.example.com
-+ echo --------------------------------------------------
---------------------------------------------------
-+ echo [INFO] Build Summary:
-[INFO] Build Summary:
-+ echo   Compilation: SUCCESS
-  Compilation: SUCCESS
-+ echo   Unit Tests : 2 FAILED, 98 PASSED
-  Unit Tests : 2 FAILED, 98 PASSED
-+ echo   Integration: PASSED
-  Integration: PASSED
-+ echo   Packaging  : SUCCESS
-  Packaging  : SUCCESS
-+ echo   Deployment : SUCCESS (with retry)
-  Deployment : SUCCESS (with retry)
-+ echo [WARNING] Some tests marked as flaky
-[WARNING] Some tests marked as flaky
-+ echo [ERROR] 2 critical errors found
-[ERROR] 2 critical errors found
-+ echo [INFO] Jenkins job finished with status: UNSTABLE
-[INFO] Jenkins job finished with status: UNSTABLE
+[2025-10-14T19:19:11.832Z] + npm ci --prefer-offline --no-audit --progress=false --silent
+[2025-10-14T19:19:58.365Z] husky - Git hooks installed
+[2025-10-14T19:19:58.365Z] + npm list --depth=0
+[2025-10-14T19:19:58.365Z] vucar@0.1.0 /var/lib/jenkins/workspace/vucar-pipeline
+[2025-10-14T19:19:58.365Z] ├── @emotion/react@11.13.0
+[2025-10-14T19:19:58.365Z] ├── @emotion/styled@11.13.0
+[2025-10-14T19:19:58.365Z] ├── @mui/icons-material@5.16.7
+[2025-10-14T19:19:58.365Z] ├── @mui/lab@5.0.0-alpha.173
+[2025-10-14T19:19:58.365Z] ├── @mui/material@5.16.7
+[2025-10-14T19:19:58.365Z] ├── @mui/x-date-pickers@7.17.0
+[2025-10-14T19:19:58.366Z] ├── @next-auth/mongodb-adapter@1.1.3
+[2025-10-14T19:19:58.366Z] ├── @nextui-org/radio@2.1.5
+[2025-10-14T19:19:58.366Z] ├── @nextui-org/react@2.4.8
+[2025-10-14T19:19:58.366Z] ├── @paypal/react-paypal-js@8.5.0
+[2025-10-14T19:19:58.366Z] ├── @playwright/test@1.56.0
+[2025-10-14T19:19:58.366Z] ├── @redux-devtools/extension@3.3.0
+[2025-10-14T19:19:58.366Z] ├── @reduxjs/toolkit@2.2.7
+[2025-10-14T19:19:58.366Z] ├── @stripe/react-stripe-js@2.8.0
+[2025-10-14T19:19:58.366Z] ├── @stripe/stripe-js@4.3.0
+[2025-10-14T19:19:58.366Z] ├── @testing-library/jest-dom@6.9.1
+[2025-10-14T19:19:58.366Z] ├── @testing-library/react@14.3.1
+[2025-10-14T19:19:58.366Z] ├── @types/node@20.19.21
+[2025-10-14T19:19:58.366Z] ├── @types/react-dom@18.3.7
+[2025-10-14T19:19:58.366Z] ├── @types/react@18.3.3
+[2025-10-14T19:19:58.366Z] ├── @typescript-eslint/eslint-plugin@7.18.0
+[2025-10-14T19:19:58.366Z] ├── @typescript-eslint/parser@7.18.0
+[2025-10-14T19:19:58.366Z] ├── axios@1.3.1
+[2025-10-14T19:19:58.366Z] ├── bcrypt@5.1.1
+[2025-10-14T19:19:58.366Z] ├── bcryptjs@2.4.3
+[2025-10-14T19:19:58.366Z] ├── body-parser@1.20.2
+[2025-10-14T19:19:58.366Z] ├── cross-env@7.0.3
+[2025-10-14T19:19:58.366Z] ├── dayjs@1.11.12
+[2025-10-14T19:19:58.366Z] ├── eslint-config-next@14.2.5
+[2025-10-14T19:19:58.366Z] ├── eslint-config-prettier@9.1.2
+[2025-10-14T19:19:58.366Z] ├── eslint-plugin-import@2.32.0
+[2025-10-14T19:19:58.366Z] ├── eslint-plugin-jsx-a11y@6.10.2
+[2025-10-14T19:19:58.366Z] ├── eslint-plugin-react-hooks@4.6.2
+[2025-10-14T19:19:58.366Z] ├── eslint@8.57.0
+[2025-10-14T19:19:58.366Z] ├── express-fileupload@1.5.1
+[2025-10-14T19:19:58.366Z] ├── formik@2.4.6
+[2025-10-14T19:19:58.366Z] ├── framer-motion@11.5.4
+[2025-10-14T19:19:58.366Z] ├── fs@0.0.1-security
+[2025-10-14T19:19:58.366Z] ├── husky@8.0.3
+[2025-10-14T19:19:58.366Z] ├── jest-environment-jsdom@29.7.0
+[2025-10-14T19:19:58.366Z] ├── jest@29.7.0
+[2025-10-14T19:19:58.366Z] ├── jsonwebtoken@9.0.2
+[2025-10-14T19:19:58.366Z] ├── lint-staged@15.5.2
+[2025-10-14T19:19:58.366Z] ├── mongodb@5.9.2
+[2025-10-14T19:19:58.366Z] ├── mongoose@8.5.2
+[2025-10-14T19:19:58.366Z] ├── next-auth@4.24.7
+[2025-10-14T19:19:58.366Z] ├── next-cloudinary@6.10.0
+[2025-10-14T19:19:58.366Z] ├── next-connect@1.0.0
+[2025-10-14T19:19:58.366Z] ├── next-redux-wrapper@8.1.0
+[2025-10-14T19:19:58.366Z] ├── next@14.2.5
+[2025-10-14T19:19:58.366Z] ├── nodemailer@6.9.14
+[2025-10-14T19:19:58.366Z] ├── prettier@3.6.2
+[2025-10-14T19:19:58.366Z] ├── react-dom@18.3.1
+[2025-10-14T19:19:58.366Z] ├── react-icons@5.2.1
+[2025-10-14T19:19:58.366Z] ├── react-redux@9.1.2
+[2025-10-14T19:19:58.366Z] ├── react-responsive@10.0.0
+[2025-10-14T19:19:58.366Z] ├── react-share@5.1.0
+[2025-10-14T19:19:58.366Z] ├── react-spinners@0.14.1
+[2025-10-14T19:19:58.366Z] ├── react-toastify@10.0.5
+[2025-10-14T19:19:58.366Z] ├── react@18.3.1
+[2025-10-14T19:19:58.366Z] ├── redux-persist@6.0.0
+[2025-10-14T19:19:58.366Z] ├── redux-thunk@3.1.0
+[2025-10-14T19:19:58.366Z] ├── redux@5.0.1
+[2025-10-14T19:19:58.366Z] ├── sass@1.77.8
+[2025-10-14T19:19:58.366Z] ├── slugify@1.6.6
+[2025-10-14T19:19:58.366Z] ├── stripe@16.8.0
+[2025-10-14T19:19:58.366Z] ├── swiper@11.1.9
+[2025-10-14T19:19:58.366Z] ├── tailwindcss@3.4.12
+[2025-10-14T19:19:58.366Z] ├── typescript@5.9.3
+[2025-10-14T19:19:58.366Z] ├── yup-phone@1.3.2
+[2025-10-14T19:19:58.366Z] └── yup@1.4.0
+[2025-10-14T19:19:58.366Z] 
+[2025-10-14T19:19:58.366Z] ++ ls node_modules
+[2025-10-14T19:19:58.366Z] ++ wc -l
+[2025-10-14T19:19:58.366Z] + echo '📊 Dependencies installed: 717 packages'
+[2025-10-14T19:19:58.366Z] 📊 Dependencies installed: 717 packages
+[Pipeline] }
+[Pipeline] // withEnv
+[Pipeline] }
+[Pipeline] // stage
+[Pipeline] stage
+[Pipeline] { (🔍 Code Quality)
+[Pipeline] parallel
+[Pipeline] { (Branch: Lint)
+[Pipeline] { (Branch: Type Check)
+[Pipeline] stage
+[Pipeline] { (Lint)
+[Pipeline] stage
+[Pipeline] { (Type Check)
+[Pipeline] tool
+[Pipeline] tool
+[Pipeline] envVarsForTool
+[Pipeline] envVarsForTool
+[Pipeline] withEnv
+[Pipeline] {
+[Pipeline] withEnv
+[Pipeline] {
+[Pipeline] echo
+[2025-10-14T19:19:58.836Z] 🔍 Running ESLint
+[Pipeline] sh
+[Pipeline] echo
+[2025-10-14T19:19:58.870Z] 📝 Checking TypeScript types
+[Pipeline] sh
+[2025-10-14T19:19:59.107Z] + npm run lint --silent
+[2025-10-14T19:19:59.140Z] + '[' -f tsconfig.json ']'
+[2025-10-14T19:19:59.140Z] + npx tsc --noEmit --skipLibCheck
+[2025-10-14T19:20:07.167Z] config/app.ts(41,7): error TS2561: Object literal may only specify known properties, but 'MONGODB_URL' does not exist in type 'EnvironmentConfig'. Did you mean to write 'MONGODB_URI'?
+[2025-10-14T19:20:07.168Z] + echo 'Type check completed with warnings'
+[2025-10-14T19:20:07.168Z] Type check completed with warnings
+[Pipeline] }
+[Pipeline] // withEnv
 [Pipeline] }
 [Pipeline] // stage
 [Pipeline] }
+[2025-10-14T19:20:11.219Z] Attention: Next.js now collects completely anonymous telemetry regarding usage.
+[2025-10-14T19:20:11.219Z] This information is used to shape Next.js' roadmap and prioritize features.
+[2025-10-14T19:20:11.219Z] You can learn more, including how to opt-out if you'd not like to participate in this anonymous program, by visiting the following URL:
+[2025-10-14T19:20:11.219Z] https://nextjs.org/telemetry
+[2025-10-14T19:20:11.219Z] 
+[2025-10-14T19:20:11.219Z] ✔ No ESLint warnings or errors
+[Pipeline] }
+[Pipeline] // withEnv
+[Pipeline] }
+[Pipeline] // stage
+[Pipeline] }
+[Pipeline] // parallel
+[Pipeline] }
+[Pipeline] // stage
+[Pipeline] stage
+[Pipeline] { (🏗️ Build Application)
+[Pipeline] tool
+[Pipeline] envVarsForTool
+[Pipeline] withEnv
+[Pipeline] {
+[Pipeline] echo
+[2025-10-14T19:20:11.585Z] 🏗️ Building Next.js application
+[Pipeline] sh
+[2025-10-14T19:20:11.855Z] + echo 'Building application...'
+[2025-10-14T19:20:11.855Z] Building application...
+[2025-10-14T19:20:11.855Z] + npm run build
+[2025-10-14T19:20:13.198Z] 
+[2025-10-14T19:20:13.198Z] > vucar@0.1.0 build
+[2025-10-14T19:20:13.198Z] > next build
+[2025-10-14T19:20:13.198Z] 
+[2025-10-14T19:20:16.443Z]   ▲ Next.js 14.2.5
+[2025-10-14T19:20:16.443Z] 
+[2025-10-14T19:20:16.443Z]    Linting and checking validity of types ...
+[2025-10-14T19:20:24.478Z] Failed to compile.
+[2025-10-14T19:20:24.478Z] 
+[2025-10-14T19:20:24.478Z] ./config/app.ts:41:7
+[2025-10-14T19:20:24.478Z] Type error: Object literal may only specify known properties, but 'MONGODB_URL' does not exist in type 'EnvironmentConfig'. Did you mean to write 'MONGODB_URI'?
+[2025-10-14T19:20:24.478Z] 
+[2025-10-14T19:20:24.478Z] [0m [90m 39 |[39m     [36mreturn[39m {[0m
+[2025-10-14T19:20:24.478Z] [0m [90m 40 |[39m       [33mNODE_ENV[39m[33m:[39m (process[33m.[39menv[33m.[39m[33mNODE_ENV[39m [36mas[39m [33mEnvironmentConfig[39m[[32m"NODE_ENV"[39m]) [33m||[39m [32m"development"[39m[33m,[39m[0m
+[2025-10-14T19:20:24.478Z] [0m[31m[1m>[22m[39m[90m 41 |[39m       [33mMONGODB_URL[39m[33m:[39m process[33m.[39menv[33m.[39m[33mMONGODB_URL[39m[33m![39m[33m,[39m[0m
+[2025-10-14T19:20:24.478Z] [0m [90m    |[39m       [31m[1m^[22m[39m[0m
+[2025-10-14T19:20:24.478Z] [0m [90m 42 |[39m       [33mPORT[39m[33m:[39m parseInt(process[33m.[39menv[33m.[39m[33mPORT[39m [33m||[39m [32m"3000"[39m[33m,[39m [35m10[39m)[33m,[39m[0m
+[2025-10-14T19:20:24.478Z] [0m [90m 43 |[39m     }[33m;[39m[0m
+[2025-10-14T19:20:24.478Z] [0m [90m 44 |[39m   }[33m,[39m[0m
+Post stage
+[Pipeline] echo
+[2025-10-14T19:20:24.516Z] ❌ Application build failed
+[Pipeline] }
+[Pipeline] // withEnv
+[Pipeline] }
+[Pipeline] // stage
+[Pipeline] stage
+[Pipeline] { (🐳 Build Docker Image)
+Stage "🐳 Build Docker Image" skipped due to earlier failure(s)
+[Pipeline] getContext
+[Pipeline] }
+[Pipeline] // stage
+[Pipeline] stage
+[Pipeline] { (📤 Push Docker Image)
+Stage "📤 Push Docker Image" skipped due to earlier failure(s)
+[Pipeline] getContext
+[Pipeline] }
+[Pipeline] // stage
+[Pipeline] stage
+[Pipeline] { (� Run Database Migration)
+Stage "� Run Database Migration" skipped due to earlier failure(s)
+[Pipeline] getContext
+[Pipeline] }
+[Pipeline] // stage
+[Pipeline] stage
+[Pipeline] { (�🚀 Deploy to Production)
+Stage "�🚀 Deploy to Production" skipped due to earlier failure(s)
+[Pipeline] getContext
+[Pipeline] }
+[Pipeline] // stage
+[Pipeline] stage
+[Pipeline] { (Declarative: Post Actions)
+[Pipeline] echo
+[2025-10-14T19:20:25.233Z] 🧹 Cleaning workspace
+[Pipeline] cleanWs
+[2025-10-14T19:20:25.250Z] [WS-CLEANUP] Deleting project workspace...
+[2025-10-14T19:20:25.250Z] [WS-CLEANUP] Deferred wipeout is used...
+[2025-10-14T19:20:25.254Z] [WS-CLEANUP] done
+[Pipeline] echo
+[2025-10-14T19:20:25.293Z] ❌ Pipeline failed!
+[Pipeline] }
+[Pipeline] // stage
+[Pipeline] }
+[Pipeline] // withEnv
+[Pipeline] }
+[Pipeline] // timestamps
+[Pipeline] }
+[Pipeline] // timeout
+[Pipeline] }
+[Pipeline] // withEnv
+[Pipeline] }
+[Pipeline] // withEnv
+[Pipeline] }
 [Pipeline] // node
 [Pipeline] End of Pipeline
-Finished: SUCCESS
+ERROR: script returned exit code 1
+Finished: FAILURE

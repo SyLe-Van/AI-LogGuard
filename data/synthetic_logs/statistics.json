@@ -1,0 +1,17 @@
+{
+  "total_logs": 300,
+  "platforms": {
+    "gitlab-ci": 99,
+    "jenkins": 98,
+    "github-actions": 103
+  },
+  "error_categories": {
+    "dependency_error": 75,
+    "test_failure": 60,
+    "timeout": 45,
+    "environment_error": 30,
+    "network_error": 15,
+    "syntax_error": 60,
+    "permission_error": 15
+  }
+}
