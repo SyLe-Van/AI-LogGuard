@@ -1,0 +1,386 @@
+[
+  {
+    "log_id": "gitlab-ci_environment_error_628",
+    "file_path": "logs/gitlab-ci_environment_error_628.txt",
+    "platform": "gitlab-ci",
+    "error_category": "environment_error",
+    "build_number": 628,
+    "timestamp": "2025-10-30T21:43:43.968175"
+  },
+  {
+    "log_id": "jenkins_dependency_error_225",
+    "file_path": "logs/jenkins_dependency_error_225.txt",
+    "platform": "jenkins",
+    "error_category": "dependency_error",
+    "build_number": 225,
+    "timestamp": "2025-10-30T21:43:43.967798"
+  },
+  {
+    "log_id": "gitlab-ci_syntax_error_928",
+    "file_path": "logs/gitlab-ci_syntax_error_928.txt",
+    "platform": "gitlab-ci",
+    "error_category": "syntax_error",
+    "build_number": 928,
+    "timestamp": "2025-10-30T21:43:43.967878"
+  },
+  {
+    "log_id": "gitlab-ci_test_failure_41",
+    "file_path": "logs/gitlab-ci_test_failure_41.txt",
+    "platform": "gitlab-ci",
+    "error_category": "test_failure",
+    "build_number": 41,
+    "timestamp": "2025-10-30T21:43:43.967956"
+  },
+  {
+    "log_id": "gitlab-ci_timeout_112",
+    "file_path": "logs/gitlab-ci_timeout_112.txt",
+    "platform": "gitlab-ci",
+    "error_category": "timeout",
+    "build_number": 112,
+    "timestamp": "2025-10-30T21:43:43.968074"
+  },
+  {
+    "log_id": "gitlab-ci_dependency_error_781",
+    "file_path": "logs/gitlab-ci_dependency_error_781.txt",
+    "platform": "gitlab-ci",
+    "error_category": "dependency_error",
+    "build_number": 781,
+    "timestamp": "2025-10-30T21:43:43.967830"
+  },
+  {
+    "log_id": "github-actions_syntax_error_714",
+    "file_path": "logs/github-actions_syntax_error_714.txt",
+    "platform": "github-actions",
+    "error_category": "syntax_error",
+    "build_number": 714,
+    "timestamp": "2025-10-30T21:43:43.967932"
+  },
+  {
+    "log_id": "github-actions_test_failure_256",
+    "file_path": "logs/github-actions_test_failure_256.txt",
+    "platform": "github-actions",
+    "error_category": "test_failure",
+    "build_number": 256,
+    "timestamp": "2025-10-30T21:43:43.968029"
+  },
+  {
+    "log_id": "gitlab-ci_dependency_error_611",
+    "file_path": "logs/gitlab-ci_dependency_error_611.txt",
+    "platform": "gitlab-ci",
+    "error_category": "dependency_error",
+    "build_number": 611,
+    "timestamp": "2025-10-30T21:43:43.967809"
+  },
+  {
+    "log_id": "gitlab-ci_timeout_922",
+    "file_path": "logs/gitlab-ci_timeout_922.txt",
+    "platform": "gitlab-ci",
+    "error_category": "timeout",
+    "build_number": 922,
+    "timestamp": "2025-10-30T21:43:43.968084"
+  },
+  {
+    "log_id": "github-actions_dependency_error_672",
+    "file_path": "logs/github-actions_dependency_error_672.txt",
+    "platform": "github-actions",
+    "error_category": "dependency_error",
+    "build_number": 672,
+    "timestamp": "2025-10-30T21:43:43.967785"
+  },
+  {
+    "log_id": "github-actions_dependency_error_748",
+    "file_path": "logs/github-actions_dependency_error_748.txt",
+    "platform": "github-actions",
+    "error_category": "dependency_error",
+    "build_number": 748,
+    "timestamp": "2025-10-30T21:43:43.967736"
+  },
+  {
+    "log_id": "gitlab-ci_syntax_error_804",
+    "file_path": "logs/gitlab-ci_syntax_error_804.txt",
+    "platform": "gitlab-ci",
+    "error_category": "syntax_error",
+    "build_number": 804,
+    "timestamp": "2025-10-30T21:43:43.967888"
+  },
+  {
+    "log_id": "jenkins_dependency_error_333",
+    "file_path": "logs/jenkins_dependency_error_333.txt",
+    "platform": "jenkins",
+    "error_category": "dependency_error",
+    "build_number": 333,
+    "timestamp": "2025-10-30T21:43:43.967771"
+  },
+  {
+    "log_id": "github-actions_test_failure_308",
+    "file_path": "logs/github-actions_test_failure_308.txt",
+    "platform": "github-actions",
+    "error_category": "test_failure",
+    "build_number": 308,
+    "timestamp": "2025-10-30T21:43:43.967969"
+  },
+  {
+    "log_id": "github-actions_timeout_631",
+    "file_path": "logs/github-actions_timeout_631.txt",
+    "platform": "github-actions",
+    "error_category": "timeout",
+    "build_number": 631,
+    "timestamp": "2025-10-30T21:43:43.968112"
+  },
+  {
+    "log_id": "github-actions_dependency_error_687",
+    "file_path": "logs/github-actions_dependency_error_687.txt",
+    "platform": "github-actions",
+    "error_category": "dependency_error",
+    "build_number": 687,
+    "timestamp": "2025-10-30T21:43:43.967761"
+  },
+  {
+    "log_id": "jenkins_environment_error_467",
+    "file_path": "logs/jenkins_environment_error_467.txt",
+    "platform": "jenkins",
+    "error_category": "environment_error",
+    "build_number": 467,
+    "timestamp": "2025-10-30T21:43:43.968148"
+  },
+  {
+    "log_id": "gitlab-ci_test_failure_313",
+    "file_path": "logs/gitlab-ci_test_failure_313.txt",
+    "platform": "gitlab-ci",
+    "error_category": "test_failure",
+    "build_number": 313,
+    "timestamp": "2025-10-30T21:43:43.968052"
+  },
+  {
+    "log_id": "gitlab-ci_syntax_error_894",
+    "file_path": "logs/gitlab-ci_syntax_error_894.txt",
+    "platform": "gitlab-ci",
+    "error_category": "syntax_error",
+    "build_number": 894,
+    "timestamp": "2025-10-30T21:43:43.967856"
+  },
+  {
+    "log_id": "jenkins_dependency_error_285",
+    "file_path": "logs/jenkins_dependency_error_285.txt",
+    "platform": "jenkins",
+    "error_category": "dependency_error",
+    "build_number": 285,
+    "timestamp": "2025-10-30T21:43:43.967722"
+  },
+  {
+    "log_id": "gitlab-ci_permission_error_425",
+    "file_path": "logs/gitlab-ci_permission_error_425.txt",
+    "platform": "gitlab-ci",
+    "error_category": "permission_error",
+    "build_number": 425,
+    "timestamp": "2025-10-30T21:43:43.968202"
+  },
+  {
+    "log_id": "github-actions_network_error_785",
+    "file_path": "logs/github-actions_network_error_785.txt",
+    "platform": "github-actions",
+    "error_category": "network_error",
+    "build_number": 785,
+    "timestamp": "2025-10-30T21:43:43.968184"
+  },
+  {
+    "log_id": "gitlab-ci_timeout_683",
+    "file_path": "logs/gitlab-ci_timeout_683.txt",
+    "platform": "gitlab-ci",
+    "error_category": "timeout",
+    "build_number": 683,
+    "timestamp": "2025-10-30T21:43:43.968103"
+  },
+  {
+    "log_id": "jenkins_syntax_error_188",
+    "file_path": "logs/jenkins_syntax_error_188.txt",
+    "platform": "jenkins",
+    "error_category": "syntax_error",
+    "build_number": 188,
+    "timestamp": "2025-10-30T21:43:43.967910"
+  },
+  {
+    "log_id": "jenkins_syntax_error_900",
+    "file_path": "logs/jenkins_syntax_error_900.txt",
+    "platform": "jenkins",
+    "error_category": "syntax_error",
+    "build_number": 900,
+    "timestamp": "2025-10-30T21:43:43.967844"
+  },
+  {
+    "log_id": "gitlab-ci_dependency_error_229",
+    "file_path": "logs/gitlab-ci_dependency_error_229.txt",
+    "platform": "gitlab-ci",
+    "error_category": "dependency_error",
+    "build_number": 229,
+    "timestamp": "2025-10-30T21:43:43.967676"
+  },
+  {
+    "log_id": "jenkins_environment_error_231",
+    "file_path": "logs/jenkins_environment_error_231.txt",
+    "platform": "jenkins",
+    "error_category": "environment_error",
+    "build_number": 231,
+    "timestamp": "2025-10-30T21:43:43.968139"
+  },
+  {
+    "log_id": "jenkins_syntax_error_498",
+    "file_path": "logs/jenkins_syntax_error_498.txt",
+    "platform": "jenkins",
+    "error_category": "syntax_error",
+    "build_number": 498,
+    "timestamp": "2025-10-30T21:43:43.967920"
+  },
+  {
+    "log_id": "gitlab-ci_dependency_error_678",
+    "file_path": "logs/gitlab-ci_dependency_error_678.txt",
+    "platform": "gitlab-ci",
+    "error_category": "dependency_error",
+    "build_number": 678,
+    "timestamp": "2025-10-30T21:43:43.967749"
+  },
+  {
+    "log_id": "github-actions_timeout_805",
+    "file_path": "logs/github-actions_timeout_805.txt",
+    "platform": "github-actions",
+    "error_category": "timeout",
+    "build_number": 805,
+    "timestamp": "2025-10-30T21:43:43.968121"
+  },
+  {
+    "log_id": "gitlab-ci_test_failure_947",
+    "file_path": "logs/gitlab-ci_test_failure_947.txt",
+    "platform": "gitlab-ci",
+    "error_category": "test_failure",
+    "build_number": 947,
+    "timestamp": "2025-10-30T21:43:43.968041"
+  },
+  {
+    "log_id": "gitlab-ci_dependency_error_162",
+    "file_path": "logs/gitlab-ci_dependency_error_162.txt",
+    "platform": "gitlab-ci",
+    "error_category": "dependency_error",
+    "build_number": 162,
+    "timestamp": "2025-10-30T21:43:43.967820"
+  },
+  {
+    "log_id": "gitlab-ci_test_failure_912",
+    "file_path": "logs/gitlab-ci_test_failure_912.txt",
+    "platform": "gitlab-ci",
+    "error_category": "test_failure",
+    "build_number": 912,
+    "timestamp": "2025-10-30T21:43:43.967995"
+  },
+  {
+    "log_id": "jenkins_syntax_error_489",
+    "file_path": "logs/jenkins_syntax_error_489.txt",
+    "platform": "jenkins",
+    "error_category": "syntax_error",
+    "build_number": 489,
+    "timestamp": "2025-10-30T21:43:43.967943"
+  },
+  {
+    "log_id": "jenkins_permission_error_878",
+    "file_path": "logs/jenkins_permission_error_878.txt",
+    "platform": "jenkins",
+    "error_category": "permission_error",
+    "build_number": 878,
+    "timestamp": "2025-10-30T21:43:43.968213"
+  },
+  {
+    "log_id": "jenkins_dependency_error_518",
+    "file_path": "logs/jenkins_dependency_error_518.txt",
+    "platform": "jenkins",
+    "error_category": "dependency_error",
+    "build_number": 518,
+    "timestamp": "2025-10-30T21:43:43.967706"
+  },
+  {
+    "log_id": "jenkins_environment_error_915",
+    "file_path": "logs/jenkins_environment_error_915.txt",
+    "platform": "jenkins",
+    "error_category": "environment_error",
+    "build_number": 915,
+    "timestamp": "2025-10-30T21:43:43.968158"
+  },
+  {
+    "log_id": "gitlab-ci_test_failure_115",
+    "file_path": "logs/gitlab-ci_test_failure_115.txt",
+    "platform": "gitlab-ci",
+    "error_category": "test_failure",
+    "build_number": 115,
+    "timestamp": "2025-10-30T21:43:43.968017"
+  },
+  {
+    "log_id": "github-actions_syntax_error_690",
+    "file_path": "logs/github-actions_syntax_error_690.txt",
+    "platform": "github-actions",
+    "error_category": "syntax_error",
+    "build_number": 690,
+    "timestamp": "2025-10-30T21:43:43.967899"
+  },
+  {
+    "log_id": "gitlab-ci_environment_error_571",
+    "file_path": "logs/gitlab-ci_environment_error_571.txt",
+    "platform": "gitlab-ci",
+    "error_category": "environment_error",
+    "build_number": 571,
+    "timestamp": "2025-10-30T21:43:43.968166"
+  },
+  {
+    "log_id": "github-actions_test_failure_696",
+    "file_path": "logs/github-actions_test_failure_696.txt",
+    "platform": "github-actions",
+    "error_category": "test_failure",
+    "build_number": 696,
+    "timestamp": "2025-10-30T21:43:43.968063"
+  },
+  {
+    "log_id": "github-actions_syntax_error_254",
+    "file_path": "logs/github-actions_syntax_error_254.txt",
+    "platform": "github-actions",
+    "error_category": "syntax_error",
+    "build_number": 254,
+    "timestamp": "2025-10-30T21:43:43.967867"
+  },
+  {
+    "log_id": "gitlab-ci_timeout_813",
+    "file_path": "logs/gitlab-ci_timeout_813.txt",
+    "platform": "gitlab-ci",
+    "error_category": "timeout",
+    "build_number": 813,
+    "timestamp": "2025-10-30T21:43:43.968130"
+  },
+  {
+    "log_id": "gitlab-ci_network_error_344",
+    "file_path": "logs/gitlab-ci_network_error_344.txt",
+    "platform": "gitlab-ci",
+    "error_category": "network_error",
+    "build_number": 344,
+    "timestamp": "2025-10-30T21:43:43.968193"
+  },
+  {
+    "log_id": "jenkins_timeout_442",
+    "file_path": "logs/jenkins_timeout_442.txt",
+    "platform": "jenkins",
+    "error_category": "timeout",
+    "build_number": 442,
+    "timestamp": "2025-10-30T21:43:43.968094"
+  },
+  {
+    "log_id": "gitlab-ci_test_failure_650",
+    "file_path": "logs/gitlab-ci_test_failure_650.txt",
+    "platform": "gitlab-ci",
+    "error_category": "test_failure",
+    "build_number": 650,
+    "timestamp": "2025-10-30T21:43:43.968006"
+  },
+  {
+    "log_id": "gitlab-ci_test_failure_901",
+    "file_path": "logs/gitlab-ci_test_failure_901.txt",
+    "platform": "gitlab-ci",
+    "error_category": "test_failure",
+    "build_number": 901,
+    "timestamp": "2025-10-30T21:43:43.967982"
+  }
+]
