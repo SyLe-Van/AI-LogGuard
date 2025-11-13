@@ -31,6 +31,14 @@ except ImportError:
     LLM_AVAILABLE = False
     GeminiClient = None
 
+# Phase 3: Hybrid ML+LLM imports (conditional)
+try:
+    from .hybrid.analyzer import HybridAnalyzer
+    HYBRID_AVAILABLE = True
+except ImportError:
+    HYBRID_AVAILABLE = False
+    HybridAnalyzer = None
+
 # Cache manager (optional, can work without it)
 try:
     from .cache.cache_manager import CacheManager
@@ -38,6 +46,14 @@ try:
 except ImportError:
     CACHE_AVAILABLE = False
     CacheManager = None
+
+# Phase 4: Feedback & Learning imports (conditional)
+try:
+    from .feedback.manager import FeedbackManager
+    FEEDBACK_AVAILABLE = True
+except ImportError:
+    FEEDBACK_AVAILABLE = False
+    FeedbackManager = None
 
 # Create Typer app
 app = typer.Typer(
@@ -76,6 +92,12 @@ def analyze(
         "--llm",
         help="[Phase 2] Enable AI-powered analysis with Google Gemini (FREE!)",
     ),
+    mode: str = typer.Option(
+        "hybrid",
+        "--mode",
+        "-m",
+        help="[Phase 3] Analysis mode: hybrid (ML+LLM), ml-only (fast), llm-only (original)",
+    ),
     no_cache: bool = typer.Option(
         False,
         "--no-cache",
@@ -95,6 +117,13 @@ def analyze(
     \b
     Phase 1 (default): Rule-based analysis (FREE)
     Phase 2 (--llm):   AI-powered insights with Google Gemini (FREE, Cloud API)
+    Phase 3 (--mode):  Hybrid ML+LLM for better accuracy & cost efficiency
+    
+    \b
+    Modes:
+      hybrid (default): ML classification → specialized LLM prompts (30-50% cost reduction)
+      ml-only:          Fast ML-only classification (no LLM, instant results)
+      llm-only:         Original LLM-only analysis (highest quality)
     """
     console.print(f"\n[bold blue]🔍 Analyzing log file:[/bold blue] {log_file}\n")
     
@@ -141,11 +170,16 @@ def analyze(
     else:  # rich (default)
         display_parsed_log(parsed, console=console, show_full=show_full)
     
-    # Phase 2: AI-powered analysis
+    # Phase 2/3: AI-powered analysis
     if use_llm:
-        _run_llm_analysis(parsed, log_content, model, no_cache, show_full)
+        # Use hybrid analyzer if available and mode is hybrid/ml-only
+        if HYBRID_AVAILABLE and mode in ("hybrid", "ml-only"):
+            _run_hybrid_analysis(parsed, log_content, model, no_cache, mode, show_full)
+        else:
+            # Fallback to original LLM analysis (llm-only mode)
+            _run_llm_analysis(parsed, log_content, model, no_cache, show_full)
     elif parsed.status == BuildStatus.FAILED and parsed.error_count > 0:
-        console.print(f"\n[yellow]💡 Tip: Add --llm for AI-powered error analysis[/yellow]")
+        console.print(f"\n[yellow]💡 Tip: Add --llm --mode hybrid for fast ML+AI analysis[/yellow]")
     
     console.print()
 
@@ -224,11 +258,28 @@ def fetch(
         "-s",
         help="Save fetched logs to file",
     ),
+    analyze: bool = typer.Option(
+        False,
+        "--analyze",
+        "-a",
+        help="Analyze logs immediately after fetching",
+    ),
+    llm: bool = typer.Option(
+        False,
+        "--llm",
+        help="Use LLM for analysis (requires --analyze)",
+    ),
+    mode: Optional[str] = typer.Option(
+        None,
+        "--mode",
+        help="Analysis mode: ml-only, llm-only, hybrid, hybrid-always (requires --analyze)",
+    ),
 ):
     """
     📥 Fetch logs directly from CI/CD platform
     
     Fetch logs from Jenkins, GitHub Actions, etc. and optionally save to file.
+    Add --analyze flag to automatically analyze after fetching.
     """
     console.print(f"\n[bold blue]📥 Fetching logs from {provider}[/bold blue]\n")
     
@@ -253,10 +304,57 @@ def fetch(
     if save_to:
         save_to.write_text(logs, encoding='utf-8')
         console.print(f"💾 Saved to: {save_to}")
+    
+    # Analyze immediately if requested
+    if analyze:
+        console.print(f"\n[bold green]🔍 Analyzing fetched logs...[/bold green]\n")
+        
+        # Create temporary file if not saving
+        if not save_to:
+            import tempfile
+            temp_file = tempfile.NamedTemporaryFile(mode='w', suffix='.log', delete=False, encoding='utf-8')
+            temp_file.write(logs)
+            temp_file.close()
+            log_file_path = Path(temp_file.name)
+        else:
+            log_file_path = save_to
+        
+        # Parse and analyze
+        try:
+            from .parsers import parse_log
+            
+            # Parse logs
+            with console.status("⏳ Parsing logs..."):
+                parsed = parse_log(logs, job_name=job_id)
+            
+            console.print("✅ Log parsed successfully\n")
+            
+            # Display parsed results
+            display_parsed_log(parsed, console=console, show_full=False)
+            
+            # Run LLM/Hybrid analysis if requested
+            if llm:
+                if HYBRID_AVAILABLE and mode in ("hybrid", "ml-only"):
+                    _run_hybrid_analysis(parsed, logs, model="gemini-2.5-flash", 
+                                       no_cache=False, mode=mode or "hybrid", show_full=False)
+                else:
+                    _run_llm_analysis(parsed, logs, model="gemini-2.5-flash",
+                                    no_cache=False, show_full=False)
+            
+            # Clean up temp file
+            if not save_to:
+                import os
+                os.unlink(log_file_path)
+                
+        except Exception as e:
+            console.print(f"[red]❌ Analysis error: {e}[/red]")
+            import traceback
+            traceback.print_exc()
     else:
-        # Display preview
-        console.print("\n[bold]Preview (first 500 chars):[/bold]")
-        console.print(Panel(logs[:500] + "...", title="Fetched Logs"))
+        # Display preview only
+        if not save_to:
+            console.print("\n[bold]Preview (first 500 chars):[/bold]")
+            console.print(Panel(logs[:500] + "...", title="Fetched Logs"))
     
     console.print()
 
@@ -332,6 +430,283 @@ def _display_markdown(parsed: ParsedLog):
 # ============================================================================
 # Phase 2 Helper Functions
 # ============================================================================
+
+def _run_hybrid_analysis(parsed: ParsedLog, log_content: str, model: str, no_cache: bool, mode: str, show_full: bool):
+    """Run hybrid ML+LLM analysis on parsed log (Phase 3)"""
+    import os
+    
+    if not HYBRID_AVAILABLE:
+        console.print("\n[yellow]⚠️  Hybrid mode not available, falling back to LLM-only[/yellow]")
+        _run_llm_analysis(parsed, log_content, model, no_cache, show_full)
+        return
+    
+    # Check for API key only if mode requires LLM
+    api_key = os.getenv("GEMINI_API_KEY")
+    
+    if mode != "ml-only" and not api_key:
+        console.print("\n[red]❌ GEMINI_API_KEY not set![/red]")
+        console.print("[yellow]Get free API key: https://makersuite.google.com/app/apikey[/yellow]")
+        console.print("[yellow]Then: export GEMINI_API_KEY='your-key-here'[/yellow]\n")
+        console.print("[cyan]💡 Or use --mode ml-only for ML classification without LLM[/cyan]\n")
+        return
+    
+    console.print("\n" + "="*70)
+    if mode == "ml-only":
+        console.print("[bold magenta]🚀 Phase 3: ML-Only Classification (No LLM)[/bold magenta]")
+    else:
+        console.print("[bold magenta]🚀 Phase 3: Hybrid ML+LLM Analysis[/bold magenta]")
+    console.print("="*70 + "\n")
+    
+    try:
+        # Initialize hybrid analyzer
+        if mode == "ml-only":
+            analyzer = HybridAnalyzer(api_key=None)
+        else:
+            analyzer = HybridAnalyzer(api_key=api_key)
+        
+        # Run analysis
+        console.print(f"[yellow]⏳ Running {mode} analysis...[/yellow]")
+        result = analyzer.analyze(parsed, mode=mode)
+        console.print("[green]✅ Analysis complete[/green]\n")
+        
+        # Display results
+        _display_hybrid_result(result, console, show_full)
+        
+        return result
+        
+    except Exception as e:
+        console.print(f"\n[red]❌ Hybrid analysis failed: {e}[/red]")
+        import traceback
+        console.print(f"[dim]{traceback.format_exc()}[/dim]")
+        return None
+        import traceback
+        console.print(f"[dim]{traceback.format_exc()}[/dim]")
+
+
+def _display_hybrid_result(result: dict, console, show_full: bool):
+    """Display hybrid analysis result"""
+    
+    # ✅ Root Cause Detection (if available)
+    if 'root_cause' in result and result['root_cause']:
+        from src.utils.root_cause import root_cause_detector
+        root_cause_text = root_cause_detector.format_root_cause(result['root_cause'])
+        
+        console.print(Panel(
+            root_cause_text,
+            title="🎯 Root Cause Detection",
+            border_style="red bold",
+        ))
+        console.print()
+    
+    # ML Prediction
+    ml_panel_text = (
+        f"[bold]Error Type:[/bold] {result['error_type']}\n"
+        f"[bold]Confidence:[/bold] {result['confidence']:.1%}\n"
+        f"[bold]Strategy:[/bold] {result.get('strategy', result['mode'])}"
+    )
+    
+    # Add root cause override info if present
+    if 'root_cause_override' in result:
+        ml_panel_text += f"\n[dim italic]{result['root_cause_override']}[/dim italic]"
+    
+    console.print(Panel(
+        ml_panel_text,
+        title="🎯 ML Classification",
+        border_style="blue",
+    ))
+    
+    # LLM Explanation (if available)
+    if 'explanation' in result and result['explanation']:
+        console.print()
+        
+        # Determine panel style based on strategy
+        strategy = result.get('strategy', '')
+        if 'ML Analysis' in strategy or 'fallback' in strategy.lower():
+            title = "🤖 ML-Based Analysis"
+            style = "yellow"
+        else:
+            title = "🤖 AI Analysis (Gemini)"
+            style = "cyan"
+        
+        console.print(Panel(
+            result['explanation'],
+            title=title,
+            border_style=style,
+        ))
+        
+        # Show any warnings/notes
+        if 'error' in result and result['error']:
+            error_msg = result['error']
+            
+            # Simplify error messages for better UX
+            if "safety filters" in error_msg.lower():
+                note_msg = "⚠️  Gemini AI blocked this log content (safety filters). Using ML-based analysis instead (still accurate!)."
+            elif "quota" in error_msg.lower() or "429" in error_msg:
+                note_msg = "⚠️  Gemini API quota limit reached. Using ML-based analysis instead (still accurate!)."
+            else:
+                note_msg = error_msg
+            
+            console.print(f"\n[dim yellow]ℹ️  Note: {note_msg}[/dim yellow]")
+    
+    # Show probabilities (if full)
+    if show_full and 'ml_prediction' in result and result['ml_prediction']:
+        ml_pred = result['ml_prediction']
+        if 'proba' in ml_pred:
+            console.print("\n[bold]Probability Distribution:[/bold]")
+            
+            # Get label encoder to map indices to class names
+            from src.ml.predictor import ErrorClassifier
+            clf = ErrorClassifier()
+            classes = clf.label_encoder.classes_
+            
+            # Create table
+            table = Table(show_header=True, header_style="bold magenta")
+            table.add_column("Error Type", style="cyan")
+            table.add_column("Probability", justify="right")
+            table.add_column("Bar", style="green")
+            
+            for i, prob in enumerate(ml_pred['proba']):
+                if prob > 0.01:  # Only show >1%
+                    bar = "█" * int(prob * 50)
+                    table.add_row(classes[i], f"{prob:.1%}", bar)
+            
+            console.print(table)
+    
+    # Cost info
+    if 'cost_estimate' in result:
+        cost = result['cost_estimate']
+        tokens = result.get('tokens_used', 0)
+        if tokens > 0:
+            console.print(f"\n[dim]💰 Tokens: {tokens} | Cost: ${cost:.4f} (FREE tier)[/dim]")
+    
+    # ✅ FINAL ONE-LINER VERDICT (concise summary)
+    if 'root_cause' in result and result['root_cause']:
+        rc = result['root_cause']
+        console.print("\n" + "="*80)
+        console.print("[bold magenta]📌 QUICK SUMMARY[/bold magenta]")
+        console.print("="*80)
+        
+        # Root cause
+        severity_emoji = "🔴" if rc['severity'] == 'FATAL' else "🟡" if rc['severity'] == 'HIGH' else "🟢"
+        console.print(f"{severity_emoji} [bold]Root Cause:[/bold] {rc['root_cause']} ([red]{rc['severity']}[/red])")
+        
+        # Error line
+        console.print(f"📍 [bold]Error:[/bold] {rc['line_content'][:100]}...")
+        
+        # Failed stage
+        if rc.get('stage'):
+            stage_name = rc['stage']
+            # Add emoji based on stage name
+            stage_emoji = "🐳" if 'docker' in stage_name.lower() else "🏗️" if 'build' in stage_name.lower() else "🚀" if 'deploy' in stage_name.lower() else "🎯"
+            console.print(f"{stage_emoji} [bold]Failed Stage:[/bold] {stage_name}")
+        
+        console.print("="*80 + "\n")
+
+
+def _collect_feedback(result: dict, log_content: str, mode: str, parsed: ParsedLog):
+    """
+    Collect user feedback on analysis result (Phase 4).
+    
+    Args:
+        result: Analysis result dict
+        log_content: Original log text
+        mode: Analysis mode used
+        parsed: Parsed log object
+    """
+    if not FEEDBACK_AVAILABLE:
+        return
+    
+    console.print("\n" + "="*70)
+    console.print("[bold cyan]📊 Help us improve! Quick feedback (optional)[/bold cyan]")
+    console.print("="*70)
+    
+    # Ask for feedback
+    try:
+        # Quick rating
+        console.print("\n[bold]Was this analysis helpful?[/bold]")
+        console.print("  1 - Not helpful at all")
+        console.print("  2 - Somewhat helpful")
+        console.print("  3 - Moderately helpful")
+        console.print("  4 - Very helpful")
+        console.print("  5 - Extremely helpful")
+        console.print("  [dim](Press Enter to skip)[/dim]")
+        
+        rating_input = typer.prompt("Rating (1-5)", default="", show_default=False)
+        rating = int(rating_input) if rating_input and rating_input.isdigit() else None
+        
+        # Check if prediction was correct
+        console.print(f"\n[bold]ML predicted:[/bold] [yellow]{result['error_type']}[/yellow]")
+        console.print("[bold]Is this correct?[/bold]")
+        console.print("  y - Yes, correct")
+        console.print("  n - No, incorrect")
+        console.print("  [dim](Press Enter to skip)[/dim]")
+        
+        correct_input = typer.prompt("Correct? (y/n)", default="", show_default=False).lower()
+        
+        is_correct = None
+        correct_category = None
+        
+        if correct_input == 'y':
+            is_correct = True
+        elif correct_input == 'n':
+            is_correct = False
+            
+            # Ask for correct category
+            console.print("\n[bold]What is the correct error type?[/bold]")
+            error_types = [
+                "dependency_error",
+                "syntax_error",
+                "test_failure",
+                "timeout",
+                "environment_error",
+                "network_error",
+                "permission_error"
+            ]
+            for i, cat in enumerate(error_types, 1):
+                console.print(f"  {i} - {cat}")
+            
+            cat_input = typer.prompt("Select correct type (1-7)", default="", show_default=False)
+            if cat_input.isdigit() and 1 <= int(cat_input) <= 7:
+                correct_category = error_types[int(cat_input) - 1]
+        
+        # Optional comments
+        console.print("\n[bold]Any additional comments? (optional)[/bold]")
+        console.print("[dim](Press Enter to skip)[/dim]")
+        comments = typer.prompt("Comments", default="", show_default=False)
+        
+        # Save feedback
+        if rating or is_correct is not None or comments:
+            feedback_manager = FeedbackManager()
+            
+            ml_prediction = {
+                'error_type': result['error_type'],
+                'confidence': result['confidence'],
+                'probabilities': result.get('probabilities', {})
+            }
+            
+            feedback_id = feedback_manager.save_feedback(
+                log_content=log_content,
+                ml_prediction=ml_prediction,
+                analysis_mode=mode,
+                user_rating=rating,
+                is_correct=is_correct,
+                correct_category=correct_category,
+                user_comments=comments or None,
+                platform=str(parsed.platform) if hasattr(parsed, 'platform') else None,
+                llm_explanation=result.get('explanation'),
+                llm_tokens=result.get('tokens_used'),
+            )
+            
+            console.print(f"\n[green]✅ Thank you! Feedback saved (ID: {feedback_id})[/green]")
+            console.print("[dim]Your feedback helps improve the model![/dim]")
+        else:
+            console.print("\n[dim]⏭️  Skipped feedback[/dim]")
+    
+    except (KeyboardInterrupt, EOFError):
+        console.print("\n[dim]⏭️  Feedback cancelled[/dim]")
+    except Exception as e:
+        console.print(f"\n[yellow]⚠️  Could not save feedback: {e}[/yellow]")
+
 
 def _run_llm_analysis(parsed: ParsedLog, log_content: str, model: str, no_cache: bool, show_full: bool):
     """Run AI-powered analysis on parsed log (using Google Gemini)"""

@@ -161,7 +161,7 @@ class JenkinsParser(BaseParser):
     
     def _parse_stages(self, lines: List[str]) -> Dict:
         """
-        Parse Jenkins pipeline stages
+        Parse Jenkins pipeline stages with accurate status detection
         
         Returns:
             Dict with 'stages' key containing stage information
@@ -169,6 +169,8 @@ class JenkinsParser(BaseParser):
         stages: Dict[str, StageInfo] = {}
         stage_order: List[str] = []
         current_stage: Optional[str] = None
+        stage_has_errors: Dict[str, bool] = {}  # Track if stage has errors
+        stage_skipped: Dict[str, bool] = {}  # Track if stage was skipped
         
         for line in lines:
             # Detect stage start
@@ -180,13 +182,68 @@ class JenkinsParser(BaseParser):
                 if stage_name not in stages:
                     stages[stage_name] = StageInfo(
                         name=stage_name,
-                        status=BuildStatus.SUCCESS,  # Default to success
+                        status=BuildStatus.UNKNOWN,  # Default to UNKNOWN, will be determined later
                     )
                     stage_order.append(stage_name)
+                    stage_has_errors[stage_name] = False
+                    stage_skipped[stage_name] = False
             
-            # Detect stage failures
-            if current_stage and ('FAILED' in line or 'FAILURE' in line):
-                stages[current_stage].status = BuildStatus.FAILED
+            # ✅ IMPROVED: Detect stage skipped BEFORE checking errors
+            if current_stage and current_stage in stages:
+                line_lower = line.lower()
+                
+                # Pattern 0: Stage was skipped (highest priority - ignore this stage)
+                if 'stage skipped due to' in line_lower or 'skipped due to earlier failure' in line_lower:
+                    stage_skipped[current_stage] = True
+                    # Don't override FAILED status, but mark as skipped
+                    if stages[current_stage].status != BuildStatus.FAILED:
+                        stages[current_stage].status = BuildStatus.UNKNOWN
+                    continue  # Skip checking other patterns for skipped stages
+                
+                # Only check error patterns if stage was NOT skipped
+                if not stage_skipped.get(current_stage, False):
+                    # Pattern 1: Explicit FAILED/FAILURE marker
+                    if 'failed' in line_lower or 'failure' in line_lower:
+                        stages[current_stage].status = BuildStatus.FAILED
+                        stage_has_errors[current_stage] = True
+                    
+                    # Pattern 2: Exit code 127 (command not found)
+                    elif 'exit code 127' in line_lower or 'script returned exit code 127' in line_lower:
+                        stages[current_stage].status = BuildStatus.FAILED
+                        stage_has_errors[current_stage] = True
+                    
+                    # Pattern 3: Other non-zero exit codes
+                    elif re.search(r'exit code [1-9]\d*', line_lower) or re.search(r'script returned exit code [1-9]\d*', line_lower):
+                        # Only mark as failed if it's a non-zero exit code
+                        if 'exit code 0' not in line_lower:
+                            stages[current_stage].status = BuildStatus.FAILED
+                            stage_has_errors[current_stage] = True
+                    
+                    # Pattern 4: Docker/command not found errors
+                    elif ('docker: not found' in line_lower or 
+                          'node: not found' in line_lower or 
+                          'python: not found' in line_lower or
+                          'command not found' in line_lower):
+                        stages[current_stage].status = BuildStatus.FAILED
+                        stage_has_errors[current_stage] = True
+                    
+                    # Pattern 5: Permission denied
+                    elif 'permission denied' in line_lower:
+                        stages[current_stage].status = BuildStatus.FAILED
+                        stage_has_errors[current_stage] = True
+        
+        # Final pass: Set remaining UNKNOWN stages to SUCCESS if they have no errors and weren't skipped
+        for stage_name in stages:
+            if stages[stage_name].status == BuildStatus.UNKNOWN:
+                # If stage was skipped, keep as UNKNOWN
+                if stage_skipped.get(stage_name, False):
+                    stages[stage_name].status = BuildStatus.UNKNOWN
+                # If stage has no explicit failure markers and wasn't skipped, consider it SUCCESS
+                elif not stage_has_errors.get(stage_name, False):
+                    stages[stage_name].status = BuildStatus.SUCCESS
+                else:
+                    # Has errors but no explicit FAILED marker
+                    stages[stage_name].status = BuildStatus.FAILED
         
         return {
             'stages': stages,

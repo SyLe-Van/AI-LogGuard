@@ -60,3 +60,6 @@ data/cache/
 # OS
 .DS_Store
 Thumbs.db
+
+# Nested git repositories (should not be tracked)
+notebooks/AI-LogGuard/

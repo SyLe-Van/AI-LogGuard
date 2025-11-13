@@ -181,26 +181,51 @@ def _display_stages(stages: list, console: Console):
         else:
             stage_status = str(stage.status).split('.')[-1]  # Extract enum name
         
+        # ✅ FIX 4: Better status display for UNKNOWN stages
+        # Check if stage has errors - if yes, it's likely FAILED
+        # If UNKNOWN with no errors, it's likely SKIPPED
+        display_status = stage_status
+        if stage_status.upper() == "UNKNOWN":
+            if stage.error_count > 0:
+                display_status = "SKIPPED"  # Has errors but marked UNKNOWN = was skipped after failure
+            else:
+                display_status = "SKIPPED"  # No errors and UNKNOWN = was skipped
+        
         status_icon = {
             "SUCCESS": "✅",
             "FAILED": "❌",
             "UNSTABLE": "⚠️",
-            "UNKNOWN": "❓",
-        }.get(stage_status.upper() if isinstance(stage_status, str) else stage_status, "❓")
+            "UNKNOWN": "⏭️",  # Skipped icon
+            "SKIPPED": "⏭️",
+        }.get(display_status.upper() if isinstance(display_status, str) else display_status, "❓")
         
-        stage_label = f"{status_icon} {stage.name} - [bold]{stage_status}[/bold]"
+        # ✅ FIX: Special handling for "Post Actions" - not a primary failure
+        is_post_actions = "post action" in stage.name.lower()
         
-        # Add details if there are errors/warnings
+        if is_post_actions and display_status.upper() == "FAILED":
+            # Post Actions failed due to primary failure, not the root cause
+            status_icon = "📝"
+            stage_label = f"{status_icon} {stage.name} - [dim]encountered secondary errors[/dim]"
+        else:
+            stage_label = f"{status_icon} {stage.name} - [bold]{display_status}[/bold]"
+        
+        # ✅ FIX 4: Add "due to previous failure" note for skipped stages
         details = []
-        if stage.error_count > 0:
+        if is_post_actions and stage.error_count > 0:
+            # Post Actions errors are secondary, caused by primary failure
+            details.append(f"[dim]{stage.error_count} secondary errors (ignored)[/dim]")
+        elif display_status.upper() == "SKIPPED" and stage.error_count > 0:
+            details.append(f"[dim](due to previous failure)[/dim]")
+        elif stage.error_count > 0:
             details.append(f"[red]{stage.error_count} errors[/red]")
+        
         if stage.warning_count > 0:
             details.append(f"[yellow]{stage.warning_count} warnings[/yellow]")
         if stage.retry_count > 0:
             details.append(f"[blue]{stage.retry_count} retries[/blue]")
         
         if details:
-            stage_label += f" ({', '.join(details)})"
+            stage_label += f" {' '.join(details)}"
         
         tree.add(stage_label)
     

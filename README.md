@@ -29,6 +29,32 @@ AI-LogGuard is an intelligent command-line tool that automatically analyzes CI/C
 
 ## 🚀 Quick Start
 
+### Where to Install & Run
+
+AI-LogGuard is a **standalone CLI tool** that runs on your local machine or a dedicated analysis server. It does NOT need to be installed on your Jenkins/CI server.
+
+**Typical Setup:**
+
+```
+┌─────────────────┐
+│ Jenkins Server  │  ← Your CI/CD runs here (Docker/EC2)
+│ - Builds logs   │
+└────────┬────────┘
+         │ Fetch via API or export logs
+         ▼
+┌─────────────────┐
+│ Your Machine    │  ← Install AI-LogGuard here
+│ - AI-LogGuard   │
+│ - Analyze logs  │
+└─────────────────┘
+```
+
+**Three ways to use:**
+
+1. **Local Analysis** (Simplest): Download log → Run `ai-logguard analyze log.txt`
+2. **Remote Fetch**: Use `ai-logguard fetch` to pull logs via Jenkins API
+3. **Analysis Server**: Install on dedicated EC2/server for automated analysis
+
 ### Installation
 
 ```bash
@@ -44,6 +70,19 @@ source .venv/bin/activate  # On Windows: .venv\Scripts\activate
 pip install -r requirements.txt
 
 # Install in development mode
+pip install -e .
+```
+
+**For production server:**
+
+```bash
+# On your analysis server (EC2/VPS)
+sudo apt update && sudo apt install python3-pip python3-venv
+git clone https://github.com/SyLe-Van/AI-LogGuard.git
+cd AI-LogGuard
+python3 -m venv .venv
+source .venv/bin/activate
+pip install -r requirements.txt
 pip install -e .
 ```
 

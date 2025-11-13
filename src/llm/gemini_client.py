@@ -11,7 +11,6 @@ from typing import Optional, Dict, Any
 from enum import Enum
 
 import google.generativeai as genai
-from tenacity import retry, stop_after_attempt, wait_exponential, retry_if_exception_type
 
 logger = logging.getLogger(__name__)
 
@@ -57,6 +56,16 @@ class GeminiClient:
         self.temperature = temperature
         self.max_output_tokens = max_output_tokens
 
+        # Safety settings - Allow technical content (logs with ERROR, FAILED, etc.)
+        from google.generativeai.types import HarmCategory, HarmBlockThreshold
+        
+        self.safety_settings = {
+            HarmCategory.HARM_CATEGORY_HARASSMENT: HarmBlockThreshold.BLOCK_NONE,
+            HarmCategory.HARM_CATEGORY_HATE_SPEECH: HarmBlockThreshold.BLOCK_NONE,
+            HarmCategory.HARM_CATEGORY_SEXUALLY_EXPLICIT: HarmBlockThreshold.BLOCK_NONE,
+            HarmCategory.HARM_CATEGORY_DANGEROUS_CONTENT: HarmBlockThreshold.BLOCK_NONE,
+        }
+
         # Create model instance
         self.model = genai.GenerativeModel(
             model_name=self.model_name,
@@ -64,36 +73,146 @@ class GeminiClient:
                 "temperature": self.temperature,
                 "max_output_tokens": self.max_output_tokens,
             },
+            safety_settings=self.safety_settings,
         )
 
         logger.info(f"Initialized Gemini client with model: {self.model_name}")
 
-    @retry(
-        stop=stop_after_attempt(3),
-        wait=wait_exponential(multiplier=1, min=2, max=10),
-        retry=retry_if_exception_type(Exception),
-        reraise=True,
-    )
+    def _sanitize_prompt(self, prompt: str) -> str:
+        """
+        Sanitize prompt to reduce safety filter triggers.
+        
+        Strategy: Replace alarming words with neutral equivalents
+        while preserving technical meaning.
+        """
+        import re
+        
+        # Common CI/CD log words that might trigger safety filters
+        # Use case-insensitive replacement
+        replacements = {
+            # Error-related (might be seen as violent/dangerous)
+            r'\bkill\b': 'terminate',
+            r'\bkilled\b': 'terminated',
+            r'\bkilling\b': 'terminating',
+            r'\babort\b': 'stop',
+            r'\baborted\b': 'stopped',
+            r'\baborting\b': 'stopping',
+            r'\bfatal\b': 'critical',
+            r'\bcrash\b': 'stop',
+            r'\bcrashed\b': 'stopped',
+            r'\bcrashing\b': 'stopping',
+            r'\bpanic\b': 'critical_error',
+            r'\battack\b': 'attempt',
+            # Failure-related (soften language)
+            r'\bfailure\b': 'issue',
+            r'\bfailed\b': 'unsuccessful',
+            r'\bfailing\b': 'not_working',
+            r'\bfail\b': 'issue',
+            r'\bdenied\b': 'rejected',
+            r'\brefuse\b': 'reject',
+            r'\brefused\b': 'rejected',
+            # Violent/aggressive terms
+            r'\bexploded\b': 'stopped_unexpectedly',
+            r'\bblew up\b': 'stopped_unexpectedly',
+            r'\bdied\b': 'stopped',
+            r'\bdying\b': 'stopping',
+        }
+        
+        sanitized = prompt
+        for pattern, replacement in replacements.items():
+            # Case-insensitive replacement preserving case of first letter
+            sanitized = re.sub(pattern, replacement, sanitized, flags=re.IGNORECASE)
+        
+        # Also sanitize log content markers (case-sensitive to preserve format)
+        sanitized = sanitized.replace('ERROR:', 'ISSUE:')
+        sanitized = sanitized.replace('Error:', 'Issue:')
+        sanitized = sanitized.replace('error:', 'issue:')
+        sanitized = sanitized.replace('FATAL:', 'CRITICAL:')
+        sanitized = sanitized.replace('Fatal:', 'Critical:')
+        sanitized = sanitized.replace('fatal:', 'critical:')
+        sanitized = sanitized.replace('FAILED:', 'UNSUCCESSFUL:')
+        sanitized = sanitized.replace('Failed:', 'Unsuccessful:')
+        sanitized = sanitized.replace('failed:', 'unsuccessful:')
+        
+        return sanitized
+
+    def _create_ultra_safe_prompt(self, original_prompt: str) -> str:
+        """
+        Create ultra-safe prompt by removing all log content.
+        Only keeps the question/instruction part.
+        
+        Last resort when even sanitized prompts are blocked.
+        """
+        # Extract error type from prompt if present
+        error_type = "unknown"
+        if "dependency" in original_prompt.lower():
+            error_type = "dependency"
+        elif "syntax" in original_prompt.lower():
+            error_type = "code syntax"
+        elif "test" in original_prompt.lower():
+            error_type = "test"
+        elif "timeout" in original_prompt.lower():
+            error_type = "timeout"
+        elif "environment" in original_prompt.lower() or "configuration" in original_prompt.lower():
+            error_type = "environment configuration"
+        elif "network" in original_prompt.lower():
+            error_type = "network connectivity"
+        
+        # Generic safe prompt without log content
+        safe_prompt = f"""Provide general troubleshooting guidance for a {error_type} issue in a CI/CD pipeline.
+
+Please provide:
+1. Common causes of {error_type} problems in CI/CD
+2. Top 3 recommended solutions
+3. Best practices to prevent this issue
+
+Keep the response concise and actionable."""
+        
+        return safe_prompt
+
+    # ✅ SIMPLIFIED: No automatic retry - single attempt only
+    # If Flash fails/blocked → immediate fallback to ML (handled by caller)
     def generate(
         self,
         prompt: str,
         temperature: Optional[float] = None,
         max_tokens: Optional[int] = None,
+        sanitize: bool = True,
+        retry_with_pro: bool = False,  # ✅ DEPRECATED: No longer used
     ) -> str:
         """
-        Generate text using Gemini.
+        Generate text using Gemini Flash (single attempt).
 
         Args:
             prompt: Input prompt
             temperature: Override default temperature
             max_tokens: Override default max tokens
+            sanitize: Apply prompt sanitization to reduce safety triggers
+            retry_with_pro: (DEPRECATED) No longer used - single attempt only
 
         Returns:
             Generated text response
 
         Raises:
-            Exception: If API call fails after retries
+            Exception: If API call fails/blocked (caller should fallback to ML immediately)
         """
+        # Sanitize prompt to reduce safety filter triggers
+        original_prompt = prompt
+        if sanitize:
+            prompt = self._sanitize_prompt(prompt)
+            if prompt != original_prompt:
+                logger.info("✨ Prompt sanitized to reduce safety filter triggers")
+        
+        # ✅ Single attempt - if blocked, let caller handle ML fallback
+        return self._generate_internal(prompt, temperature, max_tokens)
+
+    def _generate_internal(
+        self,
+        prompt: str,
+        temperature: Optional[float] = None,
+        max_tokens: Optional[int] = None,
+    ) -> str:
+        """Internal generate method without retry logic."""
         try:
             # Override settings if provided
             generation_config = {}
@@ -110,6 +229,33 @@ class GeminiClient:
                 )
             else:
                 response = self.model.generate_content(prompt)
+
+            # Debug: Print response structure
+            logger.debug(f"Response candidates: {len(response.candidates) if response.candidates else 0}")
+            if response.candidates:
+                candidate = response.candidates[0]
+                logger.debug(f"Finish reason: {candidate.finish_reason}")
+                if hasattr(candidate, 'safety_ratings'):
+                    logger.debug(f"Safety ratings: {candidate.safety_ratings}")
+            
+            # Check if response was blocked
+            if not response.candidates:
+                error_msg = "No response candidates returned by Gemini"
+                if hasattr(response, 'prompt_feedback'):
+                    error_msg += f". Prompt feedback: {response.prompt_feedback}"
+                logger.error(error_msg)
+                raise ValueError(error_msg)
+            
+            candidate = response.candidates[0]
+            if hasattr(candidate, 'finish_reason'):
+                # Check finish reason (2 = SAFETY)
+                finish_reason_value = candidate.finish_reason
+                if finish_reason_value == 2:  # SAFETY
+                    error_msg = f"Response blocked by safety filters (finish_reason=SAFETY)"
+                    if hasattr(candidate, 'safety_ratings'):
+                        error_msg += f"\nSafety ratings: {candidate.safety_ratings}"
+                    logger.error(error_msg)
+                    raise ValueError(error_msg)
 
             # Extract text
             text = response.text
