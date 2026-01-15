@@ -3,7 +3,7 @@ typer>=0.15.0
 rich==13.7.1
 
 # HTTP & API
-requests==2.31.0
+requests==2.32.4
 
 # Data validation
 pydantic>=2.10.0
